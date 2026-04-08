@@ -1,0 +1,682 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if current_category %}
+        {{ current_category.name }} - FurniHub
+    {% else %}
+        All Products - FurniHub
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Product List Page - Dark Luxury Theme */
+    .page-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(212, 168, 83, 0.15);
+    }
+    
+    .page-header h2 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.2rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        color: var(--ivory);
+        margin-bottom: 0.5rem;
+    }
+    
+    .page-header p {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 300;
+        color: var(--smoke);
+    }
+    
+    /* Filter Card */
+    .filter-card {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-card .card-header {
+        background: var(--walnut);
+        border-bottom: 1px solid rgba(212, 168, 83, 0.12);
+        padding: 1rem 1.25rem;
+    }
+    
+    .filter-card .card-header h5 {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin: 0;
+    }
+    
+    .filter-card .card-body {
+        padding: 1.25rem;
+    }
+    
+    .filter-card .form-label {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    /* Custom styled inputs and selects */
+    .filter-card .form-control,
+    .filter-card .form-select {
+        background: rgba(0, 0, 0, 0.35) !important;
+        border: 1px solid rgba(212, 168, 83, 0.2) !important;
+        border-radius: 10px !important;
+        padding: 0.6rem 0.8rem !important;
+        font-family: 'Jost', sans-serif !important;
+        font-size: 0.8rem !important;
+        color: var(--ivory) !important;
+        transition: all 0.3s ease !important;
+        width: 100% !important;
+    }
+    
+    .filter-card .form-control:focus,
+    .filter-card .form-select:focus {
+        background: rgba(0, 0, 0, 0.5) !important;
+        border-color: var(--gold) !important;
+        box-shadow: 0 0 0 2px rgba(212, 168, 83, 0.1) !important;
+        outline: none !important;
+    }
+    
+    .filter-card .form-control::placeholder {
+        color: #a08f7a !important;
+        opacity: 0.7 !important;
+    }
+    
+    /* Custom Select Dropdown with Gold Arrow */
+    .filter-card .form-select {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%23d4a853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>') !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.8rem center !important;
+        cursor: pointer !important;
+    }
+    
+    .filter-card .form-select option {
+        background: var(--mahogany) !important;
+        color: var(--ivory) !important;
+        padding: 0.5rem !important;
+    }
+    
+    /* Number input spinners removal */
+    .filter-card input[type="number"]::-webkit-inner-spin-button,
+    .filter-card input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    
+    .filter-card input[type="number"] {
+        -moz-appearance: textfield;
+    }
+    
+    .btn-filter {
+        background: var(--gold);
+        border: none;
+        border-radius: 30px;
+        padding: 0.6rem 1rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--espresso);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-filter:hover {
+        background: var(--gold-light);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(212, 168, 83, 0.3);
+    }
+    
+    .btn-clear {
+        background: transparent;
+        border: 1px solid rgba(212, 168, 83, 0.3);
+        border-radius: 30px;
+        padding: 0.6rem 1rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+    
+    .btn-clear:hover {
+        border-color: var(--gold);
+        color: var(--gold-light);
+        background: rgba(212, 168, 83, 0.05);
+    }
+    
+    /* Product Card - Dark Theme */
+    .product-card {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.1);
+        border-radius: 16px;
+        transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        overflow: hidden;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(212, 168, 83, 0.25);
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .product-image-container {
+        position: relative;
+        overflow: hidden;
+        background: var(--espresso);
+        border-radius: 16px 16px 0 0;
+    }
+    
+    .product-image-container img {
+        transition: transform 0.5s ease;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .product-card:hover .product-image-container img {
+        transform: scale(1.05);
+    }
+    
+    .product-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: var(--gold);
+        color: var(--espresso);
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        padding: 4px 10px;
+        border-radius: 30px;
+        z-index: 2;
+    }
+    
+    .product-card .card-body {
+        padding: 1rem 1rem 0.5rem;
+    }
+    
+    .product-card .card-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--ivory);
+        margin-bottom: 0.25rem;
+        line-height: 1.4;
+    }
+    
+    .product-category {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 400;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--smoke);
+        margin-bottom: 0.75rem;
+    }
+    
+    .product-price {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .current-price {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--gold);
+    }
+    
+    .old-price {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 300;
+        color: var(--smoke);
+        text-decoration: line-through;
+    }
+    
+    .product-rating {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 0.75rem;
+    }
+    
+    .product-rating i {
+        font-size: 0.7rem;
+        color: var(--gold);
+    }
+    
+    .product-rating .rating-count {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.65rem;
+        color: var(--smoke);
+        margin-left: 4px;
+    }
+    
+    .product-card .card-footer {
+        background: transparent;
+        border-top: 1px solid rgba(212, 168, 83, 0.08);
+        padding: 0.75rem 1rem 1rem;
+    }
+    
+    .btn-view {
+        background: transparent;
+        border: 1px solid rgba(212, 168, 83, 0.3);
+        border-radius: 30px;
+        padding: 0.5rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        transition: all 0.3s ease;
+        text-align: center;
+        display: block;
+        text-decoration: none;
+    }
+    
+    .btn-view:hover {
+        border-color: var(--gold);
+        color: var(--gold-light);
+        background: rgba(212, 168, 83, 0.05);
+    }
+    
+    .btn-cart {
+        background: var(--gold);
+        border: none;
+        border-radius: 30px;
+        padding: 0.5rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--espresso);
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .btn-cart:hover {
+        background: var(--gold-light);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(212, 168, 83, 0.3);
+    }
+    
+    .btn-cart:disabled {
+        background: rgba(212, 168, 83, 0.3);
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .btn-login-cart {
+        background: rgba(212, 168, 83, 0.15);
+        border: 1px solid rgba(212, 168, 83, 0.3);
+        border-radius: 30px;
+        padding: 0.5rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--gold-light);
+        transition: all 0.3s ease;
+        text-align: center;
+        display: block;
+        text-decoration: none;
+    }
+    
+    .btn-login-cart:hover {
+        background: rgba(212, 168, 83, 0.25);
+        border-color: var(--gold);
+        color: var(--gold);
+    }
+    
+    /* Results Count */
+    .results-count {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 300;
+        color: var(--smoke);
+        letter-spacing: 0.04em;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(212, 168, 83, 0.1);
+    }
+    
+    /* Pagination - Dark Theme */
+    .pagination {
+        gap: 4px;
+    }
+    
+    .pagination .page-link {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.2);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 400;
+        color: var(--parchment);
+        transition: all 0.3s ease;
+    }
+    
+    .pagination .page-link:hover {
+        background: rgba(212, 168, 83, 0.1);
+        border-color: var(--gold);
+        color: var(--gold-light);
+    }
+    
+    .pagination .page-item.active .page-link {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: var(--espresso);
+        font-weight: 600;
+    }
+    
+    .pagination .page-item.disabled .page-link {
+        background: rgba(0, 0, 0, 0.3);
+        border-color: rgba(212, 168, 83, 0.1);
+        color: var(--smoke);
+        opacity: 0.5;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 24px;
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--smoke);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .empty-state h4 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: var(--ivory);
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.9rem;
+        color: var(--smoke);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-2">
+    <div class="row g-4">
+        <!-- Sidebar Filters -->
+        <div class="col-lg-3">
+            <div class="filter-card">
+                <div class="card-header">
+                    <h5><i class="fas fa-sliders-h me-2"></i> Refine Selection</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="" id="filterForm">
+                        <!-- Price Range -->
+                        <div class="mb-4">
+                            <label class="form-label">Price Range</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="number" class="form-control" name="min_price" 
+                                           placeholder="Min $" value="{{ current_min_price }}" min="0">
+                                </div>
+                                <div class="col">
+                                    <input type="number" class="form-control" name="max_price" 
+                                           placeholder="Max $" value="{{ current_max_price }}" min="0">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Brands Dropdown -->
+                        <div class="mb-4">
+                            <label class="form-label">Brand</label>
+                            <select class="form-select" name="brand">
+                                <option value="">All Brands</option>
+                                {% for brand in brands %}
+                                    <option value="{{ brand }}" {% if current_brand == brand %}selected{% endif %}>
+                                        {{ brand }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Colors Dropdown -->
+                        <div class="mb-4">
+                            <label class="form-label">Color</label>
+                            <select class="form-select" name="color">
+                                <option value="">All Colors</option>
+                                {% for color in colors %}
+                                    <option value="{{ color }}" {% if current_color == color %}selected{% endif %}>
+                                        {{ color }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Sort By Dropdown -->
+                        <div class="mb-4">
+                            <label class="form-label">Sort By</label>
+                            <select class="form-select" name="sort">
+                                <option value="">Default</option>
+                                <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                                <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                                <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                            </select>
+                        </div>
+                        
+                        {% if search_query %}
+                            <input type="hidden" name="q" value="{{ search_query }}">
+                        {% endif %}
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn-filter">
+                                <i class="fas fa-filter me-2"></i>Apply Filters
+                            </button>
+                            <a href="{% url 'products:product_list' %}" class="btn-clear text-center">
+                                <i class="fas fa-undo-alt me-2"></i>Clear All
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Products Grid -->
+        <div class="col-lg-9">
+            <!-- Header -->
+            <div class="page-header">
+                {% if current_category %}
+                    <h2>{{ current_category.name }}</h2>
+                    {% if current_category.description %}
+                        <p>{{ current_category.description }}</p>
+                    {% endif %}
+                {% elif search_query %}
+                    <h2>Search: "{{ search_query }}"</h2>
+                    <p>{{ page_obj.paginator.count }} piece{{ page_obj.paginator.count|pluralize }} found</p>
+                {% else %}
+                    <h2>All Collections</h2>
+                    <p>Discover our complete range of premium furniture</p>
+                {% endif %}
+            </div>
+            
+            <!-- Results Count -->
+            <div class="results-count">
+                <i class="fas fa-couch me-2"></i>
+                Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }} pieces
+            </div>
+            
+            <!-- Products Grid -->
+            <div class="row g-4">
+                {% for product in products %}
+                    <div class="col-md-6 col-xl-4">
+                        <div class="product-card">
+                            <!-- Product Image -->
+                            <div class="product-image-container" style="height: 240px;">
+                                {% if product.images.all %}
+                                    <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                                {% else %}
+                                    <div class="d-flex flex-column align-items-center justify-content-center h-100" style="background: var(--espresso);">
+                                        <i class="fas fa-couch fa-3x" style="color: var(--smoke); opacity: 0.4;"></i>
+                                        <small class="mt-2" style="color: var(--smoke);">No image</small>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if product.get_discount_percentage > 0 %}
+                                    <span class="product-badge">-{{ product.get_discount_percentage }}%</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="card-body">
+                                <h6 class="card-title">{{ product.name|truncatechars:50 }}</h6>
+                                <div class="product-category">{{ product.category.name }}</div>
+                                
+                                <div class="product-price">
+                                    <span class="current-price">${{ product.price }}</span>
+                                    {% if product.compare_price %}
+                                        <span class="old-price">${{ product.compare_price }}</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="product-rating">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= product.avg_rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% elif forloop.counter <= product.avg_rating|add:"0.5" %}
+                                            <i class="fas fa-star-half-alt"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="rating-count">({{ product.reviews.count }})</span>
+                                </div>
+                            </div>
+                            
+                            <div class="card-footer">
+                                <div class="d-grid gap-2">
+                                    <a href="{% url 'products:product_detail' product.category.slug product.slug %}" 
+                                       class="btn-view">
+                                        <i class="fas fa-eye me-2"></i>View Details
+                                    </a>
+                                    {% if user.is_authenticated %}
+                                        {% if product.stock_quantity > 0 %}
+                                            <form action="{% url 'cart:add_to_cart' product.id %}" method="POST">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="quantity" value="1">
+                                                <button type="submit" class="btn-cart w-100">
+                                                    <i class="fas fa-shopping-bag me-2"></i>Add to Cart
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <button class="btn-cart w-100" disabled style="opacity: 0.5;">
+                                                <i class="fas fa-times me-2"></i>Out of Stock
+                                            </button>
+                                        {% endif %}
+                                    {% else %}
+                                        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn-login-cart">
+                                            <i class="fas fa-sign-in-alt me-2"></i>Login to Purchase
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <i class="fas fa-box-open"></i>
+                            <h4>No pieces found</h4>
+                            <p>Try adjusting your filters or browse our other collections</p>
+                            <a href="{% url 'products:product_list' %}" class="btn-filter mt-3" style="display: inline-block; padding: 0.6rem 1.5rem;">
+                                <i class="fas fa-sync-alt me-2"></i>Reset Filters
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.paginator.num_pages > 1 %}
+                <nav class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    <i class="fas fa-chevron-left me-1"></i> Prev
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="fas fa-chevron-left me-1"></i> Prev</span>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    Next <i class="fas fa-chevron-right ms-1"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">Next <i class="fas fa-chevron-right ms-1"></i></span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

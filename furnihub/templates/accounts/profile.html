@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - FurniHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Profile Page - Dark Luxury Theme */
+    .profile-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(212, 168, 83, 0.15);
+    }
+    
+    .profile-header h2 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        color: var(--ivory);
+        margin-bottom: 0.5rem;
+    }
+    
+    .profile-header p {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 400;
+        color: var(--smoke);
+    }
+    
+    /* Profile Card */
+    .profile-card {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .profile-card .card-body {
+        padding: 1.75rem;
+    }
+    
+    /* Avatar Section */
+    .avatar-section {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(212, 168, 83, 0.1);
+    }
+    
+    .avatar-circle {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, var(--gold), var(--caramel));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+    }
+    
+    .avatar-circle i {
+        font-size: 3rem;
+        color: var(--espresso);
+    }
+    
+    .avatar-section h4 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--ivory);
+        margin-bottom: 0.25rem;
+    }
+    
+    .avatar-section p {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.75rem;
+        color: var(--smoke);
+        margin: 0;
+    }
+    
+    /* Form Elements */
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-label {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .form-label i {
+        color: var(--gold);
+        font-size: 0.8rem;
+        width: 20px;
+    }
+    
+    .form-control {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(212, 168, 83, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.85rem;
+        color: var(--ivory);
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        background: rgba(0, 0, 0, 0.4);
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px rgba(212, 168, 83, 0.1);
+        outline: none;
+    }
+    
+    .form-control[readonly] {
+        background: rgba(0, 0, 0, 0.2);
+        border-color: rgba(212, 168, 83, 0.1);
+        color: var(--smoke);
+        cursor: not-allowed;
+    }
+    
+    /* Placeholder Styling - More Visible */
+    .form-control::placeholder {
+        color: #d4c5a8 !important;
+        opacity: 0.85 !important;
+        font-weight: 400 !important;
+        letter-spacing: 0.02em !important;
+    }
+    
+    .form-control:focus::placeholder {
+        color: rgba(212, 168, 83, 0.5) !important;
+    }
+    
+    /* Button */
+    .btn-update {
+        background: var(--gold);
+        border: none;
+        border-radius: 40px;
+        padding: 0.8rem 1.5rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--espresso);
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .btn-update:hover {
+        background: var(--gold-light);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(212, 168, 83, 0.3);
+    }
+    
+    /* Divider */
+    .form-divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 1.5rem 0;
+    }
+    
+    .form-divider::before,
+    .form-divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid rgba(212, 168, 83, 0.1);
+    }
+    
+    .form-divider span {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--smoke);
+        padding: 0 1rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .profile-card .card-body {
+            padding: 1.25rem;
+        }
+        
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .avatar-circle i {
+            font-size: 2.5rem;
+        }
+        
+        .btn-update {
+            padding: 0.7rem 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-2">
+    <div class="profile-header">
+        <h2>My Profile</h2>
+        <p>Manage your personal information and account settings</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="profile-card">
+                <div class="card-body">
+                    <!-- Avatar Section -->
+                    <div class="avatar-section">
+                        <div class="avatar-circle">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h4>{{ user.username }}</h4>
+                        <p>Member since {{ user.date_joined|date:"F Y" }}</p>
+                    </div>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-user-tag"></i> Username
+                            </label>
+                            <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                            <small style="font-family: 'Jost', sans-serif; font-size: 0.65rem; color: var(--smoke); display: block; margin-top: 0.5rem;">
+                                <i class="fas fa-info-circle me-1"></i> Username cannot be changed
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-envelope"></i> Email Address
+                            </label>
+                            <input type="email" class="form-control" name="email" value="{{ user.email }}" placeholder="your@email.com" required>
+                        </div>
+                        
+                        <div class="form-divider">
+                            <span>Personal Information</span>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <i class="fas fa-user"></i> First Name
+                                    </label>
+                                    <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}" placeholder="Enter your first name">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <i class="fas fa-user"></i> Last Name
+                                    </label>
+                                    <input type="text" class="form-control" name="last_name" value="{{ user.last_name }}" placeholder="Enter your last name">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-divider">
+                            <span>Account Security</span>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <i class="fas fa-calendar-alt"></i> Date Joined
+                                    </label>
+                                    <input type="text" class="form-control" value="{{ user.date_joined|date:"F d, Y" }}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <i class="fas fa-clock"></i> Last Login
+                                    </label>
+                                    <input type="text" class="form-control" value="{{ user.last_login|date:"F d, Y H:i"|default:'Never' }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn-update">
+                                <i class="fas fa-save me-2"></i> Update Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

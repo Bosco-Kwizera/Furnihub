@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Orders - FurniHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Orders Page - Dark Luxury Theme */
+    .orders-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(212, 168, 83, 0.15);
+    }
+    
+    .orders-header h2 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        color: var(--ivory);
+        margin-bottom: 0;
+    }
+    
+    /* Orders Table */
+    .orders-table {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    
+    .orders-table thead th {
+        background: var(--walnut);
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--gold);
+        padding: 1rem 1rem;
+        border-bottom: 1px solid rgba(212, 168, 83, 0.15);
+    }
+    
+    .orders-table tbody td {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.85rem;
+        color: var(--parchment);
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(212, 168, 83, 0.05);
+    }
+    
+    .orders-table tbody tr:hover {
+        background: rgba(212, 168, 83, 0.03);
+    }
+    
+    .orders-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    /* Order Number */
+    .order-number {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--gold);
+        letter-spacing: 0.02em;
+    }
+    
+    /* Status Badges */
+    .status-badge {
+        display: inline-block;
+        padding: 0.3rem 0.9rem;
+        border-radius: 30px;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+    
+    .status-badge.delivered {
+        background: rgba(76, 175, 129, 0.15);
+        border: 1px solid rgba(76, 175, 129, 0.3);
+        color: #4caf81;
+    }
+    
+    .status-badge.cancelled {
+        background: rgba(232, 123, 106, 0.15);
+        border: 1px solid rgba(232, 123, 106, 0.3);
+        color: #e87b6a;
+    }
+    
+    .status-badge.processing {
+        background: rgba(212, 168, 83, 0.15);
+        border: 1px solid rgba(212, 168, 83, 0.3);
+        color: var(--gold);
+    }
+    
+    .status-badge.pending {
+        background: rgba(212, 168, 83, 0.1);
+        border: 1px solid rgba(212, 168, 83, 0.2);
+        color: var(--gold-light);
+    }
+    
+    .status-badge.shipped {
+        background: rgba(33, 150, 243, 0.15);
+        border: 1px solid rgba(33, 150, 243, 0.3);
+        color: #64b5f6;
+    }
+    
+    /* Payment Status Badges */
+    .payment-badge {
+        display: inline-block;
+        padding: 0.3rem 0.9rem;
+        border-radius: 30px;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+    
+    .payment-badge.paid {
+        background: rgba(76, 175, 129, 0.15);
+        border: 1px solid rgba(76, 175, 129, 0.3);
+        color: #4caf81;
+    }
+    
+    .payment-badge.pending {
+        background: rgba(212, 168, 83, 0.15);
+        border: 1px solid rgba(212, 168, 83, 0.3);
+        color: var(--gold);
+    }
+    
+    .payment-badge.failed {
+        background: rgba(232, 123, 106, 0.15);
+        border: 1px solid rgba(232, 123, 106, 0.3);
+        color: #e87b6a;
+    }
+    
+    /* View Details Button */
+    .btn-view {
+        background: transparent;
+        border: 1px solid rgba(212, 168, 83, 0.3);
+        border-radius: 30px;
+        padding: 0.4rem 1rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-view:hover {
+        border-color: var(--gold);
+        color: var(--gold-light);
+        background: rgba(212, 168, 83, 0.05);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 24px;
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--smoke);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .empty-state p {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.9rem;
+        color: var(--smoke);
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-start {
+        background: var(--gold);
+        border: none;
+        border-radius: 40px;
+        padding: 0.7rem 1.5rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--espresso);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-start:hover {
+        background: var(--gold-light);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(212, 168, 83, 0.3);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .orders-table thead {
+            display: none;
+        }
+        
+        .orders-table tbody tr {
+            display: block;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(212, 168, 83, 0.1);
+            padding: 0.5rem 0;
+        }
+        
+        .orders-table tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 1rem;
+            border: none;
+        }
+        
+        .orders-table tbody td:before {
+            content: attr(data-label);
+            font-family: 'Jost', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+        
+        .order-number {
+            font-weight: 700;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-2">
+    <div class="orders-header">
+        <h2>My Orders</h2>
+    </div>
+    
+    {% if orders %}
+        <div class="table-responsive">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td data-label="Order #">
+                                <span class="order-number">#{{ order.order_number }}</span>
+                            </td>
+                            <td data-label="Date">
+                                {{ order.created_at|date:"M d, Y" }}
+                            </td>
+                            <td data-label="Total">
+                                <strong style="color: var(--gold);">${{ order.total|floatformat:2 }}</strong>
+                            </td>
+                            <td data-label="Status">
+                                <span class="status-badge 
+                                    {% if order.status == 'delivered' %}delivered
+                                    {% elif order.status == 'cancelled' %}cancelled
+                                    {% elif order.status == 'shipped' %}shipped
+                                    {% elif order.status == 'processing' %}processing
+                                    {% else %}pending{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td data-label="Payment">
+                                <span class="payment-badge 
+                                    {% if order.payment_status == 'paid' %}paid
+                                    {% elif order.payment_status == 'failed' %}failed
+                                    {% else %}pending{% endif %}">
+                                    {{ order.payment_status|title }}
+                                </span>
+                            </td>
+                            <td data-label="Action">
+                                <a href="{% url 'orders:order_detail' order.id %}" class="btn-view">
+                                    View <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <p>You haven't placed any orders yet.</p>
+            <a href="{% url 'products:product_list' %}" class="btn-start">
+                <i class="fas fa-shopping-bag me-2"></i> Start Shopping
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
