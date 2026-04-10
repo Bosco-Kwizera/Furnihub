@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    
     # Custom apps (note the 'apps.' prefix)
     'apps.accounts',
     'apps.products',
@@ -71,7 +72,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
                 'apps.cart.context_processors.cart',
-                'apps.cart.context_processors.categories',  # Make sure this line exists
+                'apps.cart.context_processors.categories',
             ],
         },
     },
@@ -129,3 +130,50 @@ LOGOUT_REDIRECT_URL = 'products:home'
 # Admin Interface settings
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 SILENCED_SYSTEM_CHECKS = ['security.W019']
+
+# ==================== EMAIL CONFIGURATION ====================
+
+# Email Configuration for Password Reset
+# For development - using console backend (prints emails to terminal)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# For production with Gmail (uncomment when ready to deploy)
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'your-email@gmail.com'
+# EMAIL_HOST_PASSWORD = 'your-app-password'  # Use App Password from Google Account
+
+# For production with Outlook/Hotmail
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp-mail.outlook.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'your-email@outlook.com'
+# EMAIL_HOST_PASSWORD = 'your-password'
+
+# For production with Yahoo
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.mail.yahoo.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'your-email@yahoo.com'
+# EMAIL_HOST_PASSWORD = 'your-password'
+
+# Password Reset Settings
+PASSWORD_RESET_TIMEOUT = 86400  # 24 hours in seconds
+PASSWORD_RESET_TIMEOUT_DAYS = 1  # Alternative setting (deprecated in newer Django)
+
+# Email subject line for password reset
+# This is set in the view, but you can customize it here
+# DEFAULT_FROM_EMAIL = 'FurniHub <noreply@furnihub.com>'
+# Add Gmail SMTP configuration
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'your-email@gmail.com'
+# EMAIL_HOST_PASSWORD = 'your-app-password' 
+
+

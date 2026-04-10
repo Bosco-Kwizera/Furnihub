@@ -9,4 +9,3 @@ staticfiles/
 .vscode/ 
 .idea/ 
 *.log 
-.DS_Store 
