@@ -11,9 +11,9 @@ urlpatterns = [
     path('orders/', include('apps.orders.urls')),
     path('payments/', include('apps.payments.urls')),
     path('api-auth/', include('rest_framework.urls')),
+    path('admin-dashboard/', include('apps.admin_dashboard.urls')),  # Add this
 ]
 
-# Serve media files during development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
