@@ -1,0 +1,80 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+{% load static %}
+
+{% block admin_title %}Manage Products{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 style="font-family: 'Cormorant Garamond', serif; color: var(--ivory);">
+        <i class="fas fa-couch me-2" style="color: var(--gold);"></i>Products
+    </h2>
+    <a href="{% url 'admin_dashboard:add_product' %}" class="btn-admin btn-admin-primary">
+        <i class="fas fa-plus me-2"></i> Add Product
+    </a>
+</div>
+
+<div class="admin-table">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>
+                    {% if product.images.first %}
+                        <img src="{{ product.images.first.image.url }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                    {% else %}
+                        <div style="width: 50px; height: 50px; background: rgba(0,0,0,0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-couch" style="color: var(--smoke);"></i>
+                        </div>
+                    {% endif %}
+                </td>
+                <td><strong>{{ product.name|truncatechars:40 }}</strong></td>
+                <td>{{ product.category.name }}</td>
+                <td style="color: var(--gold);">${{ product.price }}</td>
+                <td>
+                    {% if product.stock_quantity <= 5 %}
+                        <span style="color: #e87b6a;">{{ product.stock_quantity }}</span>
+                    {% else %}
+                        {{ product.stock_quantity }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if product.is_active %}
+                        <span class="badge-status badge-paid">Active</span>
+                    {% else %}
+                        <span class="badge-status badge-pending">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'admin_dashboard:edit_product' product.id %}" class="btn-admin" style="padding: 0.25rem 0.75rem;">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <form method="POST" action="{% url 'admin_dashboard:delete_product' product.id %}" style="display: inline;" onsubmit="return confirm('Delete {{ product.name }}?')">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-admin" style="padding: 0.25rem 0.75rem; border-color: rgba(232,123,106,0.4); color: #e87b6a;">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align: center;">No products yet. <a href="{% url 'admin_dashboard:add_product' %}">Add your first product</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
