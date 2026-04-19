@@ -8,6 +8,6 @@ urlpatterns = [
     path('products/', views.ProductListView.as_view(), name='product_list'),
     path('category/<slug:category_slug>/', views.CategoryDetailView.as_view(), name='category_detail'),
     path('product/<slug:category_slug>/<slug:product_slug>/', views.ProductDetailView.as_view(), name='product_detail'),
-    path('product/<int:product_id>/review/', views.add_review, name='add_review'),  # Add this line
+    path('product/<int:product_id>/review/', views.add_review, name='add_review'),  # Make sure this line exists
     path('search/', views.ProductListView.as_view(), name='search'),
 ]

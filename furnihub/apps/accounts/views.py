@@ -168,29 +168,45 @@ def delete_address_view(request, address_id):
     return redirect('accounts:addresses')
 
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Wishlist
+from apps.products.models import Product
+
 @login_required
 def wishlist_view(request):
-    wishlist_items = Wishlist.objects.filter(user=request.user)
+    """View and manage wishlist"""
     
+    # Handle POST request (adding/removing items)
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
         product = get_object_or_404(Product, id=product_id)
         
-        wishlist_item, created = Wishlist.objects.get_or_create(
-            user=request.user,
-            product=product
-        )
+        # Check if product already in wishlist
+        wishlist_item = Wishlist.objects.filter(user=request.user, product=product).first()
         
-        if not created:
+        if wishlist_item:
+            # Remove from wishlist
             wishlist_item.delete()
-            messages.info(request, f'{product.name} removed from wishlist')
+            messages.success(request, f'{product.name} removed from your wishlist.')
         else:
-            messages.success(request, f'{product.name} added to wishlist')
+            # Add to wishlist
+            Wishlist.objects.create(user=request.user, product=product)
+            messages.success(request, f'{product.name} added to your wishlist!')
         
-        return redirect(request.META.get('HTTP_REFERER', 'products:home'))
+        # Redirect back to the same page
+        next_url = request.POST.get('next', request.META.get('HTTP_REFERER', 'products:home'))
+        return redirect(next_url)
     
-    return render(request, 'accounts/wishlist.html', {'wishlist': wishlist_items})
-
+    # Handle GET request (display wishlist)
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product__category')
+    
+    context = {
+        'wishlist': wishlist_items,
+        'wishlist_count': wishlist_items.count(),
+    }
+    return render(request, 'accounts/wishlist.html', context)
 
 @login_required
 def orders_view(request):
