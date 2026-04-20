@@ -402,6 +402,8 @@
                                     <div class="col-md-6">
                                         <label class="form-label">Country *</label>
                                         <select class="form-select" name="country" id="country">
+                                            <option value="Rwanda">🇷🇼 Rwanda</option>
+                                            <option value="Uganda">🇺🇬 Uganda</option>
                                             <option value="United States">🇺🇸 United States</option>
                                             <option value="Canada">🇨🇦 Canada</option>
                                             <option value="United Kingdom">🇬🇧 United Kingdom</option>
@@ -435,6 +437,36 @@
                     <div class="card-header">
                         <h5><i class="fas fa-credit-card me-2"></i> Payment Method</h5>
                     </div>
+                     <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="payment_method" value="mobile_money" id="mobile_money">
+            <label class="form-check-label" for="mobile_money">
+                <i class="fas fa-mobile-alt me-2"></i> Mobile Money
+            </label>
+        </div>
+        
+        <!-- Mobile Money Details (shows when selected) -->
+        <div id="mobileMoneyDetails" style="display: none; margin-top: 1rem; margin-left: 1.5rem;">
+            <div class="alert alert-info" style="background: rgba(212,168,83,0.1); border-color: rgba(212,168,83,0.2); color: var(--gold);">
+                <i class="fas fa-info-circle me-2"></i>
+                You will receive a payment prompt on your registered mobile number after placing the order.
+            </div>
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <label class="form-label">Select Provider</label>
+                    <select name="mobile_money_provider" class="form-select">
+                        <option value="mtn">MTN Mobile Money</option>
+                        <option value="airtel">Airtel Money</option>
+                        <option value="vodafone">Vodafone Cash</option>
+                        <option value="orange">Orange Money</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Mobile Number (Optional)</label>
+                    <input type="tel" name="mobile_number" class="form-control" placeholder="e.g., 07XXXXXXXX">
+                    <small class="text-muted">Leave empty to use your registered number</small>
+                </div>
+            </div>
+        </div>
                     <div class="card-body">
                         <div class="payment-radio">
                             <div class="form-check">
@@ -515,6 +547,19 @@
 
 {% block extra_js %}
 <script>
+
+    const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+    const mobileMoneyDetails = document.getElementById('mobileMoneyDetails');
+    
+    paymentRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'mobile_money') {
+                mobileMoneyDetails.style.display = 'block';
+            } else {
+                mobileMoneyDetails.style.display = 'none';
+            }
+        });
+    });
     // Show/hide new address form
     const addressRadios = document.querySelectorAll('input[name="address_id"]');
     const newAddressForm = document.getElementById('newAddressForm');

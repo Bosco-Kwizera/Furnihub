@@ -332,6 +332,7 @@
             <p>Dashboard & Control Panel</p>
         </div>
         
+        <!-- Main Section -->
         <div class="nav-section">
             <div class="nav-section-title">Main</div>
             <a href="{% url 'admin_dashboard:dashboard' %}" class="admin-nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
@@ -353,11 +354,16 @@
             </a>
         </div>
         
+        <!-- Customers Section - Updated with full User Management -->
         <div class="nav-section">
-            <div class="nav-section-title">Customers</div>
+            <div class="nav-section-title">Users & Permissions</div>
             <a href="{% url 'admin_dashboard:users_list' %}" class="admin-nav-item">
                 <i class="fas fa-users"></i>
                 <span>All Users</span>
+            </a>
+            <a href="{% url 'admin_dashboard:user_roles' %}" class="admin-nav-item">
+                <i class="fas fa-user-tag"></i>
+                <span>User Roles</span>
             </a>
             <a href="#" class="admin-nav-item">
                 <i class="fas fa-star"></i>
@@ -365,6 +371,7 @@
             </a>
         </div>
         
+        <!-- Marketing Section -->
         <div class="nav-section">
             <div class="nav-section-title">Marketing</div>
             <a href="#" class="admin-nav-item">
@@ -377,6 +384,7 @@
             </a>
         </div>
         
+        <!-- Settings Section -->
         <div class="nav-section">
             <div class="nav-section-title">Settings</div>
             <a href="#" class="admin-nav-item">
@@ -386,6 +394,10 @@
             <a href="#" class="admin-nav-item">
                 <i class="fas fa-palette"></i>
                 <span>Theme</span>
+            </a>
+            <a href="#" class="admin-nav-item">
+                <i class="fas fa-shield-alt"></i>
+                <span>Permissions</span>
             </a>
         </div>
     </aside>
@@ -419,5 +431,15 @@
             sidebar.classList.toggle('open');
         });
     }
+    
+    // Optional: Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+        const isMobile = window.innerWidth <= 992;
+        if (isMobile && sidebar.classList.contains('open')) {
+            if (!sidebar.contains(event.target) && !mobileToggle.contains(event.target)) {
+                sidebar.classList.remove('open');
+            }
+        }
+    });
 </script>
 {% endblock %}

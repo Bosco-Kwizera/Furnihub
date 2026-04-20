@@ -1,0 +1,1627 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FurniHub — Premium Home Furniture & Decor{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ═══════════════════════════════════════════
+     DESIGN TOKENS — mirrors base.html palette
+  ═══════════════════════════════════════════ */
+  :root {
+    --espresso:   #1a1109;
+    --walnut:     #2c1d0e;
+    --walnut-mid: #3d2a14;
+    --gold:       #d4a853;
+    --gold-light: #e8c97a;
+    --gold-dim:   rgba(212,168,83,0.15);
+    --ivory:      #f5f0e8;
+    --ivory-dim:  rgba(245,240,232,0.07);
+    --smoke:      #9a8f80;
+    --smoke-dim:  rgba(154,143,128,0.3);
+    --card-bg:    #221608;
+    --border:     rgba(212,168,83,0.18);
+  }
+
+  /* ═══════════════════════════════════════════
+     GLOBAL PAGE
+  ═══════════════════════════════════════════ */
+  body {
+    background-color: var(--espresso);
+    color: var(--ivory);
+    font-family: 'Jost', sans-serif;
+  }
+
+  /* ═══════════════════════════════════════════
+     SECTION HEADERS
+  ═══════════════════════════════════════════ */
+  .fh-section-label {
+    display: inline-block;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+  }
+
+  .fh-section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--ivory);
+    position: relative;
+    display: inline-block;
+  }
+
+  .fh-section-title span.accent {
+    color: var(--gold);
+  }
+
+  .fh-section-title::after {
+    content: '';
+    display: block;
+    width: 48px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    margin-top: 14px;
+  }
+
+  .fh-section-title.centered::after {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .fh-section-sub {
+    font-size: 0.92rem;
+    color: var(--smoke);
+    letter-spacing: 0.02em;
+    margin-top: 0.6rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TRUST BAR
+  ═══════════════════════════════════════════ */
+  .trust-bar {
+    background: var(--walnut);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+  }
+
+  .trust-bar .trust-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--smoke);
+  }
+
+  .trust-bar .trust-item i {
+    color: var(--gold);
+    font-size: 1rem;
+  }
+
+  .trust-bar .divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+  }
+
+  /* ═══════════════════════════════════════════
+     HERO
+  ═══════════════════════════════════════════ */
+  .hero-section {
+    position: relative;
+    min-height: 92vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: var(--espresso);
+
+  }
+
+  .hero-bg-art {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero-bg-art .blob-1 {
+    position: absolute;
+    top: -120px;
+    right: -80px;
+    width: 700px;
+    height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%, rgba(212,168,83,0.12), transparent 70%);
+  }
+
+  .hero-bg-art .blob-2 {
+    position: absolute;
+    bottom: -200px;
+    left: -100px;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(44,29,14,0.9), transparent 70%);
+  }
+
+  .hero-bg-art .line-v {
+    position: absolute;
+    top: 0;
+    right: 42%;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, var(--border) 30%, var(--border) 70%, transparent);
+    opacity: 0.5;
+  }
+
+  .hero-bg-art .dot-grid {
+    position: absolute;
+    bottom: 60px;
+    left: 40px;
+    width: 180px;
+    height: 180px;
+    background-image: radial-gradient(circle, rgba(212,168,83,0.25) 1px, transparent 1px);
+    background-size: 18px 18px;
+    opacity: 0.6;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.72rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-eyebrow::before,
+  .hero-eyebrow::after {
+    content: '';
+    width: 30px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.6;
+  }
+
+  .hero-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 700;
+    line-height: 1.0;
+    color: var(--ivory);
+    margin-bottom: 1.6rem;
+  }
+
+  .hero-headline em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-desc {
+    font-size: 1rem;
+    color: var(--smoke);
+    line-height: 1.8;
+    max-width: 460px;
+    margin-bottom: 2.5rem;
+  }
+
+  .btn-hero-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 38px;
+    background: var(--gold);
+    color: var(--espresso);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 100%, 12px 100%);
+  }
+
+  .btn-hero-primary:hover {
+    background: var(--gold-light);
+    color: var(--espresso);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(212,168,83,0.35);
+  }
+
+  .btn-hero-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 36px;
+    background: transparent;
+    color: var(--ivory);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+
+  .btn-hero-secondary:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--gold-dim);
+  }
+
+  /* Hero Image Panel */
+  .hero-image-panel {
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-img-frame {
+    position: relative;
+    border-radius: 0;
+  }
+
+  .hero-img-frame::before {
+    content: '';
+    position: absolute;
+    top: -14px;
+    left: -14px;
+    right: 14px;
+    bottom: 14px;
+    border: 1px solid var(--border);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .hero-img-frame img {
+    width: 100%;
+    height: 540px;
+    object-fit: cover;
+    display: block;
+    filter: saturate(0.85) brightness(0.92);
+    transition: filter 0.4s ease;
+  }
+
+  .hero-img-frame:hover img {
+    filter: saturate(1) brightness(1);
+  }
+
+  .hero-rating-pill {
+    position: absolute;
+    bottom: -22px;
+    left: -30px;
+    background: var(--walnut);
+    border: 1px solid var(--border);
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 3;
+    min-width: 220px;
+  }
+
+  .hero-rating-pill .stars {
+    color: var(--gold);
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+  }
+
+  .hero-rating-pill .rating-text strong {
+    font-size: 1.1rem;
+    color: var(--ivory);
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .hero-rating-pill .rating-text span {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--smoke);
+    letter-spacing: 0.05em;
+  }
+
+  .hero-since-badge {
+    position: absolute;
+    top: 24px;
+    right: -20px;
+    background: var(--gold);
+    color: var(--espresso);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.3;
+    z-index: 3;
+  }
+
+  /* Scroll indicator */
+  .hero-scroll-hint {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    z-index: 2;
+    color: var(--smoke);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    animation: bounceDown 2s infinite;
+  }
+
+  @keyframes bounceDown {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+
+  .hero-scroll-hint .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+  }
+
+  /* ═══════════════════════════════════════════
+     CATEGORIES
+  ═══════════════════════════════════════════ */
+  .categories-section {
+    padding: 100px 0;
+    background: var(--espresso);
+  }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+  }
+
+  @media (max-width: 1199px) { .category-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 767px)  { .category-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .cat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 32px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.35s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cat-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    transform: scaleX(0);
+    transition: transform 0.35s ease;
+  }
+
+  .cat-card:hover {
+    border-color: rgba(212,168,83,0.45);
+    background: var(--walnut-mid);
+    transform: translateY(-4px);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.4);
+  }
+
+  .cat-card:hover::after { transform: scaleX(1); }
+
+  .cat-icon-wrap {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--gold-dim);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+
+  .cat-card:hover .cat-icon-wrap {
+    background: rgba(212,168,83,0.25);
+    border-color: var(--gold);
+  }
+
+  .cat-icon-wrap i {
+    font-size: 1.25rem;
+    color: var(--gold);
+  }
+
+  .cat-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ivory);
+    margin: 0;
+  }
+
+  .cat-count {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: var(--smoke);
+    text-transform: uppercase;
+  }
+
+  /* ═══════════════════════════════════════════
+     FEATURED PRODUCTS
+  ═══════════════════════════════════════════ */
+  .featured-section {
+    padding: 100px 0;
+    background: var(--walnut);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .product-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: all 0.4s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-card:hover {
+    border-color: rgba(212,168,83,0.4);
+    transform: translateY(-6px);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  }
+
+  .product-img-wrap {
+    position: relative;
+    height: 260px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--walnut-mid);
+  }
+
+  .product-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.55s ease;
+    filter: saturate(0.8);
+  }
+
+  .product-card:hover .product-img-wrap img {
+    transform: scale(1.08);
+    filter: saturate(1);
+  }
+
+  .product-img-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--walnut-mid);
+    color: var(--smoke);
+    font-size: 3rem;
+  }
+
+  .product-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(26,17,9,0.82);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+
+  .product-card:hover .product-overlay { opacity: 1; }
+
+  .btn-overlay {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 26px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .btn-overlay-ghost {
+    background: transparent;
+    color: var(--ivory);
+    border: 1px solid rgba(245,240,232,0.4);
+  }
+  .btn-overlay-ghost:hover { border-color: var(--ivory); color: var(--ivory); }
+
+  .btn-overlay-gold {
+    background: var(--gold);
+    color: var(--espresso);
+  }
+  .btn-overlay-gold:hover { background: var(--gold-light); }
+
+  .discount-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: #c0392b;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
+  }
+
+  .product-info {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--border);
+  }
+
+  .product-cat-tag {
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  .product-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ivory);
+    margin-bottom: 12px;
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  .product-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+  }
+
+  .product-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  .product-compare-price {
+    font-size: 0.82rem;
+    color: var(--smoke);
+    text-decoration: line-through;
+    margin-left: 6px;
+  }
+
+  .product-stars i {
+    font-size: 0.65rem;
+    color: var(--gold);
+  }
+
+  .view-all-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--gold);
+    text-decoration: none;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 14px 36px;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+
+  .view-all-link:hover {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold);
+    gap: 16px;
+  }
+
+  /* ═══════════════════════════════════════════
+     NEW ARRIVALS
+  ═══════════════════════════════════════════ */
+  .arrivals-section {
+    padding: 100px 0;
+    background: var(--espresso);
+  }
+
+  .arrival-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.35s ease;
+  }
+
+  .arrival-card:hover {
+    border-color: rgba(212,168,83,0.4);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+  }
+
+  .arrival-img-wrap {
+    height: 230px;
+    overflow: hidden;
+    position: relative;
+    background: var(--walnut-mid);
+    flex-shrink: 0;
+  }
+
+  .arrival-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+    filter: saturate(0.8);
+  }
+
+  .arrival-card:hover .arrival-img-wrap img {
+    transform: scale(1.08);
+    filter: saturate(1);
+  }
+
+  .new-tag {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: var(--gold);
+    color: var(--espresso);
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+  }
+
+  .arrival-body {
+    padding: 18px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--border);
+  }
+
+  .arrival-cat {
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  .arrival-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    color: var(--ivory);
+    margin-bottom: 14px;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .arrival-price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .arrival-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  .arrival-discount {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #e74c3c;
+    background: rgba(231,76,60,0.12);
+    padding: 3px 8px;
+    border: 1px solid rgba(231,76,60,0.25);
+  }
+
+  .btn-arrival {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px;
+    background: transparent;
+    color: var(--gold);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+
+  .btn-arrival:hover {
+    background: var(--gold);
+    color: var(--espresso);
+    border-color: var(--gold);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS STRIP
+  ═══════════════════════════════════════════ */
+  .stats-strip {
+    padding: 70px 0;
+    background: var(--walnut);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat-item {
+    text-align: center;
+    position: relative;
+  }
+
+  .stat-item + .stat-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 50px;
+    background: var(--border);
+  }
+
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.4rem, 4vw, 3.8rem);
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--smoke);
+  }
+
+  /* ═══════════════════════════════════════════
+     TESTIMONIALS
+  ═══════════════════════════════════════════ */
+  .testimonials-section {
+    padding: 100px 0;
+    background: var(--espresso);
+  }
+
+  .testimonial-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 36px;
+    height: 100%;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .testimonial-card:hover {
+    border-color: rgba(212,168,83,0.35);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 50px rgba(0,0,0,0.4);
+  }
+
+  .testimonial-card .quote-mark {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 5rem;
+    line-height: 0.5;
+    color: var(--gold);
+    opacity: 0.35;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .testimonial-stars {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 16px;
+  }
+
+  .testimonial-stars i {
+    font-size: 0.75rem;
+    color: var(--gold);
+  }
+
+  .testimonial-text {
+    font-size: 0.93rem;
+    color: var(--smoke);
+    line-height: 1.8;
+    margin-bottom: 28px;
+    font-style: italic;
+  }
+
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .author-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--gold-dim);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+
+  .author-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ivory);
+    margin: 0;
+  }
+
+  .author-role {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--smoke);
+  }
+
+  /* ═══════════════════════════════════════════
+     CTA BANNER
+  ═══════════════════════════════════════════ */
+  .cta-section {
+    padding: 90px 0;
+    background: var(--walnut);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4a853' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  .cta-section .cta-inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+
+  .cta-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    font-weight: 700;
+    color: var(--ivory);
+    margin-bottom: 1rem;
+    line-height: 1.1;
+  }
+
+  .cta-headline .gold { color: var(--gold); }
+
+  .cta-sub {
+    font-size: 0.95rem;
+    color: var(--smoke);
+    max-width: 480px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+  }
+
+  /* ═══════════════════════════════════════════
+     NEWSLETTER
+  ═══════════════════════════════════════════ */
+  .newsletter-section {
+    padding: 80px 0;
+    background: var(--espresso);
+  }
+
+  .newsletter-box {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 56px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .newsletter-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .newsletter-box .nl-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--gold-dim);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: var(--gold);
+    font-size: 1.3rem;
+  }
+
+  .nl-input-group {
+    display: flex;
+    gap: 0;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .nl-input {
+    flex: 1;
+    background: var(--walnut);
+    border: 1px solid var(--border);
+    border-right: none;
+    color: var(--ivory);
+    font-size: 0.88rem;
+    padding: 14px 20px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+
+  .nl-input::placeholder { color: var(--smoke); }
+  .nl-input:focus { border-color: var(--gold); }
+
+  .nl-btn {
+    padding: 14px 28px;
+    background: var(--gold);
+    color: var(--espresso);
+    border: 1px solid var(--gold);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .nl-btn:hover {
+    background: var(--gold-light);
+    border-color: var(--gold-light);
+  }
+
+  .nl-fine {
+    font-size: 0.68rem;
+    color: var(--smoke);
+    margin-top: 14px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ═══════════════════════════════════════════
+     SCROLL ANIMATIONS
+  ═══════════════════════════════════════════ */
+  .fh-reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .fh-reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Hero entrance */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-eyebrow  { animation: fadeUp 0.8s ease 0.1s both; }
+  .hero-headline { animation: fadeUp 0.8s ease 0.25s both; }
+  .hero-desc     { animation: fadeUp 0.8s ease 0.4s both; }
+  .hero-actions  { animation: fadeUp 0.8s ease 0.55s both; }
+  .hero-image-panel { animation: fadeUp 0.9s ease 0.35s both; }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE TWEAKS
+  ═══════════════════════════════════════════ */
+  @media (max-width: 991px) {
+    .hero-section { min-height: auto; padding: 80px 0 60px; }
+    .hero-img-frame img { height: 360px; }
+    .hero-rating-pill { left: 0; bottom: -16px; }
+    .hero-since-badge { right: 10px; top: 16px; }
+    .nl-input-group { flex-direction: column; }
+    .nl-input, .nl-btn { border-right: 1px solid var(--border); }
+    .nl-input { border-bottom: none; }
+    .nl-btn { border-top: 1px solid var(--gold); }
+    .stat-item + .stat-item::before { display: none; }
+  }
+
+  @media (max-width: 767px) {
+    .hero-headline { font-size: 2.6rem; }
+    .newsletter-box { padding: 36px 24px; }
+    .testimonial-card { padding: 26px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ════════════════════════════════════
+     TRUST BAR
+════════════════════════════════════ -->
+<div class="trust-bar">
+  <div class="container">
+    <div class="d-flex justify-content-center align-items-center flex-wrap gap-3 gap-md-0">
+      <div class="trust-item px-md-4">
+        <i class="fas fa-shipping-fast"></i>
+        <span>Free Delivery Over $299</span>
+      </div>
+      <div class="divider d-none d-md-block"></div>
+      <div class="trust-item px-md-4">
+        <i class="fas fa-shield-alt"></i>
+        <span>5-Year Quality Warranty</span>
+      </div>
+      <div class="divider d-none d-md-block"></div>
+      <div class="trust-item px-md-4">
+        <i class="fas fa-undo"></i>
+        <span>60-Day Free Returns</span>
+      </div>
+      <div class="divider d-none d-md-block"></div>
+      <div class="trust-item px-md-4">
+        <i class="fas fa-headset"></i>
+        <span>24/7 Concierge Support</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     HERO
+════════════════════════════════════ -->
+<section class="hero-section">
+  <!-- Background art -->
+  <div class="hero-bg-art">
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+    <div class="line-v"></div>
+    <div class="dot-grid"></div>
+  </div>
+
+  <div class="container">
+    <div class="row align-items-center g-5 py-5">
+
+      <!-- Left: Copy -->
+      <div class="col-lg-6 hero-content">
+        <div class="hero-eyebrow">
+          <span></span> Est. 2018 &nbsp;·&nbsp; Crafted with Intention <span></span>
+        </div>
+
+        <h1 class="hero-headline">
+          Transform<br>
+          Your Home<br>
+          <em>with Style.</em>
+        </h1>
+
+        <p class="hero-desc">
+          Discover premium furniture and home décor that reflect your personality.
+          From modern minimalism to timeless elegance — pieces that tell your story.
+        </p>
+
+        <div class="hero-actions d-flex flex-wrap gap-3">
+          <a href="{% url 'products:product_list' %}" class="btn-hero-primary">
+            <i class="fas fa-shopping-bag"></i> Shop the Collection
+          </a>
+          <a href="#featured" class="btn-hero-secondary">
+            <i class="fas fa-compass"></i> Explore Rooms
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: Image -->
+      <div class="col-lg-6 hero-image-panel">
+        <div class="hero-img-frame ms-lg-4">
+          <img src="./static/images/do.jpg"
+               alt="Luxury Modern Living Room">
+
+          <!-- Rating pill -->
+          <div class="hero-rating-pill">
+            <div class="stars">★★★★★</div>
+            <div class="rating-text">
+              <strong>4.9 / 5.0</strong>
+              <span>2,500+ Verified Reviews</span>
+            </div>
+          </div>
+
+          <!-- Since badge -->
+          <div class="hero-since-badge">
+            Since<br>2018
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll hint -->
+  <div class="hero-scroll-hint">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     CATEGORIES
+════════════════════════════════════ -->
+<section class="categories-section">
+  <div class="container">
+    <div class="row align-items-end mb-5 fh-reveal">
+      <div class="col-md-7">
+        <span class="fh-section-label">Browse by Room</span>
+        <h2 class="fh-section-title">Shop by <span class="accent">Category</span></h2>
+        <p class="fh-section-sub">Explore our curated collections for every corner of your home.</p>
+      </div>
+      <div class="col-md-5 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'products:product_list' %}" class="view-all-link">
+          View All Categories <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="category-grid fh-reveal">
+      {% for category in featured_categories %}
+        <a href="{% url 'products:category_detail' category.slug %}" class="cat-card">
+          <div class="cat-icon-wrap">
+            <i class="fas fa-{% cycle 'couch' 'bed' 'chair' 'lightbulb' 'box-open' 'paint-brush' %}"></i>
+          </div>
+          <p class="cat-name">{{ category.name }}</p>
+          <span class="cat-count">{{ category.products.count }} pieces</span>
+        </a>
+      {% empty %}
+        <div style="grid-column: 1/-1; text-align:center; padding: 3rem 0;">
+          <p style="color: var(--smoke); font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;">
+            Categories launching soon…
+          </p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     FEATURED PRODUCTS
+════════════════════════════════════ -->
+<section id="featured" class="featured-section">
+  <div class="container">
+    <div class="text-center mb-5 fh-reveal">
+      <span class="fh-section-label">Hand-Picked for You</span>
+      <h2 class="fh-section-title centered">Featured <span class="accent">Collections</span></h2>
+      <p class="fh-section-sub">Timeless pieces selected by our design curators.</p>
+    </div>
+
+    <div class="row g-4">
+      {% for product in products %}
+        <div class="col-md-6 col-lg-3 fh-reveal">
+          <div class="product-card">
+
+            <!-- Image -->
+            <div class="product-img-wrap">
+              {% if product.images.all %}
+                <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+              {% else %}
+                <div class="product-img-placeholder">
+                  <i class="fas fa-couch"></i>
+                </div>
+              {% endif %}
+
+              <!-- Overlay actions -->
+              <div class="product-overlay">
+                <a href="{% url 'products:product_detail' product.category.slug product.slug %}"
+                   class="btn-overlay btn-overlay-ghost">
+                  <i class="fas fa-eye"></i> Quick View
+                </a>
+                <form action="{% url 'cart:add_to_cart' product.id %}" method="POST">
+                  {% csrf_token %}
+                  <input type="hidden" name="quantity" value="1">
+                  <button type="submit" class="btn-overlay btn-overlay-gold">
+                    <i class="fas fa-cart-plus"></i> Add to Cart
+                  </button>
+                </form>
+              </div>
+
+              {% if product.get_discount_percentage > 0 %}
+                <span class="discount-badge">−{{ product.get_discount_percentage }}%</span>
+              {% endif %}
+            </div>
+
+            <!-- Info -->
+            <div class="product-info">
+              <p class="product-cat-tag">{{ product.category.name }}</p>
+              <p class="product-name">{{ product.name|truncatechars:50 }}</p>
+              <div class="product-footer">
+                <div>
+                  <span class="product-price">${{ product.price }}</span>
+                  {% if product.compare_price %}
+                    <span class="product-compare-price">${{ product.compare_price }}</span>
+                  {% endif %}
+                </div>
+                <div class="product-stars">
+                  {% for i in "12345"|make_list %}
+                    {% if forloop.counter <= product.avg_rating %}
+                      <i class="fas fa-star"></i>
+                    {% else %}
+                      <i class="far fa-star"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12 text-center py-5 fh-reveal">
+          <p style="color: var(--smoke); font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;">
+            Featured products coming soon…
+          </p>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-5 fh-reveal">
+      <a href="{% url 'products:product_list' %}" class="view-all-link">
+        View All Products <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     NEW ARRIVALS
+════════════════════════════════════ -->
+<section class="arrivals-section">
+  <div class="container">
+    <div class="row align-items-end mb-5 fh-reveal">
+      <div class="col-md-7">
+        <span class="fh-section-label">Just Landed</span>
+        <h2 class="fh-section-title">New <span class="accent">Arrivals</span></h2>
+        <p class="fh-section-sub">Fresh designs added to our collection this season.</p>
+      </div>
+      <div class="col-md-5 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'products:product_list' %}?sort=newest" class="view-all-link">
+          See All New Arrivals <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      {% for product in new_arrivals %}
+        <div class="col-md-6 col-lg-3 fh-reveal">
+          <div class="arrival-card">
+            <div class="arrival-img-wrap">
+              {% if product.images.all %}
+                <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+              {% else %}
+                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--smoke);font-size:2.5rem;">
+                  <i class="fas fa-couch"></i>
+                </div>
+              {% endif %}
+              <span class="new-tag">New</span>
+            </div>
+
+            <div class="arrival-body">
+              <p class="arrival-cat">{{ product.category.name }}</p>
+              <p class="arrival-name">{{ product.name|truncatechars:40 }}</p>
+              <div class="arrival-price-row">
+                <span class="arrival-price">${{ product.price }}</span>
+                {% if product.get_discount_percentage > 0 %}
+                  <span class="arrival-discount">−{{ product.get_discount_percentage }}%</span>
+                {% endif %}
+              </div>
+              <a href="{% url 'products:product_detail' product.category.slug product.slug %}"
+                 class="btn-arrival">
+                <i class="fas fa-eye"></i> View Details
+              </a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12 text-center py-5 fh-reveal">
+          <p style="color: var(--smoke); font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;">
+            New arrivals coming soon…
+          </p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     STATS STRIP
+════════════════════════════════════ -->
+<section class="stats-strip">
+  <div class="container">
+    <div class="row g-4 fh-reveal">
+      <div class="col-6 col-md-3">
+        <div class="stat-item">
+          <div class="stat-num">500+</div>
+          <div class="stat-label">Products Available</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item">
+          <div class="stat-num">10K+</div>
+          <div class="stat-label">Happy Customers</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item">
+          <div class="stat-num">50+</div>
+          <div class="stat-label">Brand Partners</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item">
+          <div class="stat-num">30+</div>
+          <div class="stat-label">Countries Served</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     TESTIMONIALS
+════════════════════════════════════ -->
+<section class="testimonials-section">
+  <div class="container">
+    <div class="text-center mb-5 fh-reveal">
+      <span class="fh-section-label">Client Stories</span>
+      <h2 class="fh-section-title centered">What Our <span class="accent">Customers Say</span></h2>
+      <p class="fh-section-sub">Trusted by thousands of homeowners and interior professionals.</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4 fh-reveal">
+        <div class="testimonial-card">
+          <span class="quote-mark">"</span>
+          <div class="testimonial-stars">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+            <i class="fas fa-star"></i><i class="fas fa-star"></i>
+          </div>
+          <p class="testimonial-text">
+            "Amazing quality furniture! The modern sofa I ordered exceeded my expectations.
+            Delivery was fast and customer service was impeccable."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar"><i class="fas fa-user"></i></div>
+            <div>
+              <p class="author-name">Sarah Johnson</p>
+              <span class="author-role">Interior Designer</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 fh-reveal" style="transition-delay: 0.1s;">
+        <div class="testimonial-card">
+          <span class="quote-mark">"</span>
+          <div class="testimonial-stars">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+            <i class="fas fa-star"></i><i class="fas fa-star"></i>
+          </div>
+          <p class="testimonial-text">
+            "FurniHub transformed my home entirely. The dining set is stunning and the
+            lighting collection is absolutely breathtaking. Highly recommend!"
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar"><i class="fas fa-user"></i></div>
+            <div>
+              <p class="author-name">Michael Chen</p>
+              <span class="author-role">Homeowner</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 fh-reveal" style="transition-delay: 0.2s;">
+        <div class="testimonial-card">
+          <span class="quote-mark">"</span>
+          <div class="testimonial-stars">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+            <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+          </div>
+          <p class="testimonial-text">
+            "Great selection of modern furniture. The website is effortless to navigate
+            and checkout was seamless. Will absolutely shop again!"
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar"><i class="fas fa-user"></i></div>
+            <div>
+              <p class="author-name">Emily Rodriguez</p>
+              <span class="author-role">Architect</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     CTA BANNER
+════════════════════════════════════ -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-inner fh-reveal">
+      <span class="fh-section-label">Your Space Awaits</span>
+      <h2 class="cta-headline">
+        Ready to <span class="gold">Transform</span><br>Your Living Space?
+      </h2>
+      <p class="cta-sub">
+        Join thousands of satisfied customers who've discovered their perfect
+        furniture at FurniHub. The room of your dreams starts here.
+      </p>
+      <a href="{% url 'products:product_list' %}" class="btn-hero-primary">
+        <i class="fas fa-arrow-right"></i> Start Shopping Now
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     NEWSLETTER
+════════════════════════════════════ -->
+<section class="newsletter-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 fh-reveal">
+        <div class="newsletter-box text-center">
+          <div class="nl-icon">
+            <i class="fas fa-envelope-open-text"></i>
+          </div>
+          <span class="fh-section-label">Stay Inspired</span>
+          <h3 class="fh-section-title centered mb-3">
+            Subscribe to Our <span class="accent">Newsletter</span>
+          </h3>
+          <p class="fh-section-sub mb-4">
+            Get exclusive offers, design tips, and new arrivals delivered straight to your inbox.
+          </p>
+          <form class="d-flex flex-column align-items-center" method="post">
+            {% csrf_token %}
+            <div class="nl-input-group">
+              <input type="email" name="email" class="nl-input"
+                     placeholder="Enter your email address" required>
+              <button type="submit" class="nl-btn">
+                <i class="fas fa-paper-plane me-2"></i>Subscribe
+              </button>
+            </div>
+            <p class="nl-fine">No spam. Unsubscribe anytime. We respect your privacy.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+  /* ═══════════════════════════
+     Scroll reveal observer
+  ═══════════════════════════ */
+  const revealEls = document.querySelectorAll('.fh-reveal');
+
+  const ro = new IntersectionObserver((entries) => {
+    entries.forEach((entry, idx) => {
+      if (entry.isIntersecting) {
+        // Cascade delay for siblings
+        const siblings = entry.target.closest('.row')
+          ? [...entry.target.closest('.row').querySelectorAll('.fh-reveal')]
+          : [entry.target];
+        const i = siblings.indexOf(entry.target);
+        const delay = entry.target.style.transitionDelay
+          ? parseFloat(entry.target.style.transitionDelay) * 1000
+          : i * 80;
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, delay);
+        ro.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  revealEls.forEach(el => ro.observe(el));
+
+  /* ═══════════════════════════
+     Animated stat counters
+  ═══════════════════════════ */
+  function animateCount(el) {
+    const raw   = el.textContent.trim();
+    const num   = parseInt(raw.replace(/\D/g, ''), 10);
+    const suffix = raw.replace(/[\d]/g, '');
+    let current = 0;
+    const step  = Math.ceil(num / 60);
+    const timer = setInterval(() => {
+      current = Math.min(current + step, num);
+      el.textContent = current + suffix;
+      if (current >= num) clearInterval(timer);
+    }, 25);
+  }
+
+  const statObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.stat-num').forEach(animateCount);
+        statObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.stats-strip .row').forEach(r => statObserver.observe(r));
+</script>
+{% endblock %}

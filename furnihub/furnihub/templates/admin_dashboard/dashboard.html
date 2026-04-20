@@ -1,0 +1,163 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+{% load static %}
+
+{% block admin_title %}Dashboard Overview{% endblock %}
+
+{% block admin_content %}
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-title">Total Orders</span>
+            <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+        </div>
+        <div class="stat-value">{{ total_orders }}</div>
+        <div class="stat-change"><i class="fas fa-chart-line"></i> Last 30 days</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-title">Total Products</span>
+            <div class="stat-icon"><i class="fas fa-couch"></i></div>
+        </div>
+        <div class="stat-value">{{ total_products }}</div>
+        <div class="stat-change"><i class="fas fa-plus"></i> Active listings</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-title">Total Customers</span>
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+        </div>
+        <div class="stat-value">{{ total_users }}</div>
+        <div class="stat-change"><i class="fas fa-user-plus"></i> Registered users</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-title">Total Revenue</span>
+            <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+        </div>
+        <div class="stat-value">${{ total_revenue|floatformat:0 }}</div>
+        <div class="stat-change"><i class="fas fa-chart-line"></i> All time sales</div>
+    </div>
+</div>
+
+<!-- Orders by Status -->
+<div class="stats-grid" style="margin-top: 0;">
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-title">Pending</span>
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+        </div>
+        <div class="stat-value">{{ orders_by_status.pending }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-title">Processing</span>
+            <div class="stat-icon"><i class="fas fa-cogs"></i></div>
+        </div>
+        <div class="stat-value">{{ orders_by_status.processing }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-title">Shipped</span>
+            <div class="stat-icon"><i class="fas fa-truck"></i></div>
+        </div>
+        <div class="stat-value">{{ orders_by_status.shipped }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-title">Delivered</span>
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+        </div>
+        <div class="stat-value">{{ orders_by_status.delivered }}</div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Orders -->
+    <div class="col-lg-8">
+        <div class="admin-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td>#{{ order.order_number }}</td>
+                        <td>{{ order.user.username }}</td>
+                        <td>{{ order.created_at|date:"M d, Y" }}</td>
+                        <td>${{ order.total|floatformat:2 }}</td>
+                        <td>
+                            <span class="badge-status {% if order.status == 'delivered' %}badge-paid{% else %}badge-pending{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'admin_dashboard:order_detail' order.id %}" class="btn-admin" style="padding: 0.25rem 0.75rem;">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center;">No orders yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Low Stock Alert -->
+    <div class="col-lg-4">
+        <div class="admin-table">
+            <table>
+                <thead>
+                    <tr><th>Low Stock Alert</th></tr>
+                </thead>
+                <tbody>
+                    {% for product in low_stock %}
+                    <tr>
+                        <td>
+                            <strong>{{ product.name }}</strong><br>
+                            <small>Stock: {{ product.stock_quantity }} left</small>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td style="text-align: center;">All products have good stock</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="admin-topbar" style="justify-content: center; gap: 1rem;">
+            <a href="{% url 'admin_dashboard:add_product' %}" class="btn-admin btn-admin-primary">
+                <i class="fas fa-plus"></i> Add Product
+            </a>
+            <a href="{% url 'admin_dashboard:add_category' %}" class="btn-admin">
+                <i class="fas fa-folder-plus"></i> Add Category
+            </a>
+            <a href="{% url 'admin:index' %}" class="btn-admin">
+                <i class="fas fa-cog"></i> Django Admin
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

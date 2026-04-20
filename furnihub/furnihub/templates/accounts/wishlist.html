@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Wishlist - FurniHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Wishlist Page - Dark Luxury Theme */
+    .wishlist-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(212, 168, 83, 0.15);
+    }
+    
+    .wishlist-header h2 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        color: var(--ivory);
+        margin-bottom: 0;
+    }
+    
+    /* Wishlist Card */
+    .wishlist-card {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 20px;
+        transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .wishlist-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(212, 168, 83, 0.25);
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Product Image Container */
+    .product-image-wrapper {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        background: var(--espresso);
+    }
+    
+    .product-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .wishlist-card:hover .product-image-wrapper img {
+        transform: scale(1.05);
+    }
+    
+    .no-image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+        background: rgba(0, 0, 0, 0.3);
+    }
+    
+    .no-image i {
+        font-size: 3rem;
+        color: var(--smoke);
+        opacity: 0.4;
+    }
+    
+    /* Card Body */
+    .wishlist-card .card-body {
+        padding: 1.25rem;
+    }
+    
+    .product-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--ivory);
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+    
+    .product-category {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 400;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--smoke);
+        margin-bottom: 0.75rem;
+    }
+    
+    .product-price {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--gold);
+        margin-bottom: 1rem;
+    }
+    
+    /* Action Buttons */
+    .wishlist-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .btn-add-cart {
+        background: var(--gold);
+        border: none;
+        border-radius: 30px;
+        padding: 0.5rem 1rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--espresso);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        flex: 1;
+    }
+    
+    .btn-add-cart:hover {
+        background: var(--gold-light);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(212, 168, 83, 0.3);
+    }
+    
+    .btn-remove {
+        background: transparent;
+        border: 1px solid rgba(232, 123, 106, 0.4);
+        border-radius: 30px;
+        padding: 0.5rem 1rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #e87b6a;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .btn-remove:hover {
+        background: rgba(232, 123, 106, 0.1);
+        border-color: #e87b6a;
+        transform: translateY(-2px);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 24px;
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--smoke);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .empty-state p {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.9rem;
+        color: var(--smoke);
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-start {
+        background: var(--gold);
+        border: none;
+        border-radius: 40px;
+        padding: 0.7rem 1.5rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--espresso);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-start:hover {
+        background: var(--gold-light);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(212, 168, 83, 0.3);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .wishlist-actions {
+            flex-direction: column;
+        }
+        
+        .btn-add-cart, .btn-remove {
+            text-align: center;
+        }
+        
+        .product-image-wrapper {
+            height: 180px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-2">
+    <div class="wishlist-header">
+        <h2>My Wishlist</h2>
+    </div>
+    
+    <div class="row g-4">
+        {% for item in wishlist %}
+            <div class="col-md-6 col-lg-4 col-xl-3">
+                <div class="wishlist-card">
+                    <!-- Product Image -->
+                    <div class="product-image-wrapper">
+                        {% if item.product.images.all %}
+                            <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}">
+                        {% else %}
+                            <div class="no-image">
+                                <i class="fas fa-couch"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-body">
+                        <h5 class="product-title">{{ item.product.name|truncatechars:50 }}</h5>
+                        <div class="product-category">{{ item.product.category.name }}</div>
+                        <div class="product-price">${{ item.product.price|floatformat:2 }}</div>
+                        
+                        <div class="wishlist-actions">
+                            <form action="{% url 'cart:add_to_cart' item.product.id %}" method="POST" class="flex-grow-1">
+                                {% csrf_token %}
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn-add-cart w-100">
+                                    <i class="fas fa-shopping-bag me-1"></i> Add to Cart
+                                </button>
+                            </form>
+                            
+                            <form action="{% url 'accounts:wishlist' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                                <button type="submit" class="btn-remove" onclick="return confirm('Remove this item from your wishlist?')">
+                                    <i class="fas fa-trash-alt me-1"></i> Remove
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="fas fa-heart"></i>
+                    <p>Your wishlist is empty.</p>
+                    <a href="{% url 'products:product_list' %}" class="btn-start">
+                        <i class="fas fa-shopping-bag me-2"></i> Start Shopping
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

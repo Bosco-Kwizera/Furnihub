@@ -8,6 +8,9 @@
     <h2 style="font-family: 'Cormorant Garamond', serif; color: var(--ivory);">
         <i class="fas fa-users me-2" style="color: var(--gold);"></i>Users
     </h2>
+    <a href="#" class="btn-admin btn-admin-primary">
+        <i class="fas fa-plus me-2"></i> Add New User
+    </a>
 </div>
 
 <div class="admin-table">
@@ -18,34 +21,50 @@
                 <th>Email</th>
                 <th>Full Name</th>
                 <th>Date Joined</th>
-                <th>Orders</th>
+                <th>Role</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% for user in users %}
+            {% for user_obj in users %}
             <tr>
+                <td><strong>{{ user_obj.username }}</strong></td>
+                <td>{{ user_obj.email }}</td>
+                <td>{{ user_obj.get_full_name|default:"—" }}</td>
+                <td>{{ user_obj.date_joined|date:"M d, Y" }}</td>
                 <td>
-                    <strong>{{ user.username }}</strong>
-                    {% if user.is_superuser %}
-                        <span class="badge-status badge-paid" style="font-size: 0.6rem; margin-left: 0.5rem;">Admin</span>
+                    {% if user_obj.is_superuser %}
+                        <span class="badge-status badge-paid">Superuser</span>
+                    {% elif user_obj.is_staff %}
+                        <span class="badge-status" style="background: rgba(212,168,83,0.15); color: var(--gold);">Staff</span>
+                    {% else %}
+                        <span class="badge-status badge-pending">Customer</span>
                     {% endif %}
                 </td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.get_full_name|default:"—" }}</td>
-                <td>{{ user.date_joined|date:"M d, Y" }}</td>
-                <td>{{ user.orders.count }}</td>
                 <td>
-                    {% if user.is_active %}
+                    {% if user_obj.is_active %}
                         <span class="badge-status badge-paid">Active</span>
                     {% else %}
-                        <span class="badge-status badge-pending">Inactive</span>
+                        <span class="badge-status" style="background: rgba(232,123,106,0.15); color: #e87b6a;">Inactive</span>
                     {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'admin_dashboard:user_detail' user_obj.id %}" class="btn-admin" style="padding: 0.25rem 0.75rem;">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        {% if not user_obj.is_superuser %}
+                            <a href="{% url 'admin_dashboard:make_staff' user_obj.id %}" class="btn-admin" style="padding: 0.25rem 0.75rem; border-color: rgba(212,168,83,0.3);">
+                                <i class="fas fa-user-tag"></i> Make Staff
+                            </a>
+                        {% endif %}
+                    </div>
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" style="text-align: center;">No users found</td>
+                <td colspan="7" style="text-align: center;">No users found</td>
             </tr>
             {% endfor %}
         </tbody>

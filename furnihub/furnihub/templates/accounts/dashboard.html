@@ -1,0 +1,501 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - FurniHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Dashboard Page - Dark Luxury Theme */
+    .dashboard-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(212, 168, 83, 0.15);
+    }
+    
+    .dashboard-header h2 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        color: var(--ivory);
+        margin-bottom: 0.5rem;
+    }
+    
+    .dashboard-header p {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 400;
+        color: var(--smoke);
+    }
+    
+    /* Dashboard Cards */
+    .dashboard-card {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 20px;
+        transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(212, 168, 83, 0.25);
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .dashboard-card .card-body {
+        padding: 1.75rem;
+        text-align: center;
+    }
+    
+    .card-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(212, 168, 83, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .dashboard-card:hover .card-icon {
+        background: var(--gold);
+        transform: scale(1.05);
+    }
+    
+    .card-icon i {
+        font-size: 2rem;
+        color: var(--gold);
+        transition: all 0.3s ease;
+    }
+    
+    .dashboard-card:hover .card-icon i {
+        color: var(--espresso);
+    }
+    
+    .dashboard-card .card-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--ivory);
+        margin-bottom: 0.5rem;
+    }
+    
+    .dashboard-card .card-text {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 400;
+        color: var(--smoke);
+        margin-bottom: 1.25rem;
+        line-height: 1.5;
+    }
+    
+    .btn-card {
+        background: transparent;
+        border: 1px solid rgba(212, 168, 83, 0.3);
+        border-radius: 30px;
+        padding: 0.5rem 1.25rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-card:hover {
+        border-color: var(--gold);
+        color: var(--gold-light);
+        background: rgba(212, 168, 83, 0.05);
+    }
+    
+    .btn-card-danger {
+        background: transparent;
+        border: 1px solid rgba(232, 123, 106, 0.4);
+        border-radius: 30px;
+        padding: 0.5rem 1.25rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #e87b6a;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-card-danger:hover {
+        background: rgba(232, 123, 106, 0.1);
+        border-color: #e87b6a;
+    }
+    
+    /* Section Cards */
+    .section-card {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-top: 1.5rem;
+    }
+    
+    .section-card .card-header {
+        background: var(--walnut);
+        border-bottom: 1px solid rgba(212, 168, 83, 0.12);
+        padding: 1rem 1.25rem;
+    }
+    
+    .section-card .card-header h5 {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin: 0;
+    }
+    
+    .section-card .card-body {
+        padding: 1.25rem;
+    }
+    
+    /* Recent Orders Table */
+    .orders-table {
+        width: 100%;
+    }
+    
+    .orders-table thead th {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--smoke);
+        border-bottom: 1px solid rgba(212, 168, 83, 0.1);
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .orders-table tbody td {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.85rem;
+        color: var(--parchment);
+        padding: 0.75rem 0.5rem;
+        border-bottom: 1px solid rgba(212, 168, 83, 0.05);
+        vertical-align: middle;
+    }
+    
+    .order-status {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+    
+    .order-status.delivered {
+        background: rgba(76, 175, 129, 0.15);
+        border: 1px solid rgba(76, 175, 129, 0.3);
+        color: #4caf81;
+    }
+    
+    .order-status.cancelled {
+        background: rgba(232, 123, 106, 0.15);
+        border: 1px solid rgba(232, 123, 106, 0.3);
+        color: #e87b6a;
+    }
+    
+    .order-status.processing {
+        background: rgba(212, 168, 83, 0.15);
+        border: 1px solid rgba(212, 168, 83, 0.3);
+        color: var(--gold);
+    }
+    
+    .btn-table {
+        background: transparent;
+        border: 1px solid rgba(212, 168, 83, 0.3);
+        border-radius: 20px;
+        padding: 0.25rem 0.75rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-table:hover {
+        border-color: var(--gold);
+        color: var(--gold-light);
+    }
+    
+    /* Wishlist Preview */
+    .wishlist-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .wishlist-item {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(212, 168, 83, 0.1);
+        border-radius: 16px;
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .wishlist-item:hover {
+        border-color: rgba(212, 168, 83, 0.25);
+        transform: translateY(-3px);
+    }
+    
+    .wishlist-item h6 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--ivory);
+        margin-bottom: 0.5rem;
+    }
+    
+    .wishlist-item .price {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--gold);
+        margin-bottom: 0.75rem;
+    }
+    
+    .btn-wishlist {
+        background: transparent;
+        border: 1px solid rgba(212, 168, 83, 0.3);
+        border-radius: 20px;
+        padding: 0.25rem 0.75rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-wishlist:hover {
+        border-color: var(--gold);
+        color: var(--gold-light);
+    }
+    
+    /* Empty State */
+    .empty-message {
+        text-align: center;
+        padding: 2rem;
+        color: var(--smoke);
+        font-family: 'Jost', sans-serif;
+        font-size: 0.85rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .dashboard-card .card-body {
+            padding: 1.25rem;
+        }
+        
+        .orders-table thead {
+            display: none;
+        }
+        
+        .orders-table tbody tr {
+            display: block;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(212, 168, 83, 0.1);
+            padding-bottom: 0.5rem;
+        }
+        
+        .orders-table tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border: none;
+        }
+        
+        .orders-table tbody td:before {
+            content: attr(data-label);
+            font-family: 'Jost', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--smoke);
+        }
+        
+        .wishlist-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-2">
+    <div class="dashboard-header">
+        <h2>Welcome, {{ user.username }}</h2>
+        <p>Manage your account, orders, and preferences from your personal dashboard.</p>
+    </div>
+    
+    <!-- Dashboard Action Cards -->
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="dashboard-card">
+                <div class="card-body">
+                    <div class="card-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <h5 class="card-title">My Orders</h5>
+                    <p class="card-text">View your order history and track shipments.</p>
+                    <a href="{% url 'accounts:orders' %}" class="btn-card">View Orders →</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="dashboard-card">
+                <div class="card-body">
+                    <div class="card-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h5 class="card-title">Profile Settings</h5>
+                    <p class="card-text">Update your personal information and preferences.</p>
+                    <a href="{% url 'accounts:profile' %}" class="btn-card">Edit Profile →</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="dashboard-card">
+                <div class="card-body">
+                    <div class="card-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h5 class="card-title">Address Book</h5>
+                    <p class="card-text">Manage your shipping and billing addresses.</p>
+                    <a href="{% url 'accounts:addresses' %}" class="btn-card">Manage Addresses →</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="dashboard-card">
+                <div class="card-body">
+                    <div class="card-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h5 class="card-title">Wishlist</h5>
+                    <p class="card-text">View and manage your saved items.</p>
+                    <a href="{% url 'accounts:wishlist' %}" class="btn-card">View Wishlist →</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="dashboard-card">
+                <div class="card-body">
+                    <div class="card-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h5 class="card-title">Security</h5>
+                    <p class="card-text">Update your account password for security.</p>
+                    <a href="#" class="btn-card">Change Password →</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="dashboard-card">
+                <div class="card-body">
+                    <div class="card-icon">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                    <h5 class="card-title">Logout</h5>
+                    <p class="card-text">Sign out of your account securely.</p>
+                    <a href="{% url 'accounts:logout' %}" class="btn-card-danger">Logout →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Orders Section -->
+    {% if recent_orders %}
+    <div class="section-card">
+        <div class="card-header">
+            <h5><i class="fas fa-clock me-2"></i> Recent Orders</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td data-label="Order #">{{ order.order_number }}</td>
+                            <td data-label="Date">{{ order.created_at|date:"M d, Y" }}</td>
+                            <td data-label="Total">${{ order.total|floatformat:2 }}</td>
+                            <td data-label="Status">
+                                <span class="order-status {% if order.status == 'delivered' %}delivered{% elif order.status == 'cancelled' %}cancelled{% else %}processing{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td data-label="Action">
+                                <a href="{% url 'orders:order_detail' order.id %}" class="btn-table">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Wishlist Preview -->
+    {% if wishlist_items %}
+    <div class="section-card">
+        <div class="card-header">
+            <h5><i class="fas fa-heart me-2"></i> Recently Added to Wishlist</h5>
+        </div>
+        <div class="card-body">
+            <div class="wishlist-grid">
+                {% for item in wishlist_items %}
+                <div class="wishlist-item">
+                    <h6>{{ item.product.name|truncatechars:35 }}</h6>
+                    <div class="price">${{ item.product.price|floatformat:2 }}</div>
+                    <a href="{% url 'products:product_detail' item.product.category.slug item.product.slug %}" class="btn-wishlist">View Product →</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

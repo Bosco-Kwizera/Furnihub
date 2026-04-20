@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Address - FurniHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Add Address Page - Dark Luxury Theme */
+    .form-card {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .form-card .card-header {
+        background: var(--walnut);
+        border-bottom: 1px solid rgba(212, 168, 83, 0.12);
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .form-card .card-header h3 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.5rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        color: var(--ivory);
+        margin: 0;
+    }
+    
+    .form-card .card-body {
+        padding: 1.75rem;
+    }
+    
+    /* Form Elements */
+    .form-label {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(212, 168, 83, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.85rem;
+        color: var(--ivory);
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background: rgba(0, 0, 0, 0.4);
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px rgba(212, 168, 83, 0.1);
+        outline: none;
+    }
+    
+    .form-control::placeholder {
+        color: var(--smoke);
+        font-weight: 300;
+    }
+    
+    /* Checkbox */
+    .form-check {
+        margin-top: 0.5rem;
+    }
+    
+    .form-check-input {
+        background-color: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(212, 168, 83, 0.3);
+        width: 1.1rem;
+        height: 1.1rem;
+        cursor: pointer;
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--gold);
+        border-color: var(--gold);
+    }
+    
+    .form-check-label {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.8rem;
+        color: var(--parchment);
+        cursor: pointer;
+        margin-left: 0.5rem;
+    }
+    
+    /* Required Field Indicator */
+    .form-label i {
+        font-size: 0.6rem;
+        color: var(--gold);
+        margin-left: 4px;
+    }
+    
+    /* Buttons */
+    .btn-save {
+        background: var(--gold);
+        border: none;
+        border-radius: 40px;
+        padding: 0.8rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--espresso);
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .btn-save:hover {
+        background: var(--gold-light);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(212, 168, 83, 0.3);
+    }
+    
+    .btn-cancel {
+        background: transparent;
+        border: 1px solid rgba(212, 168, 83, 0.3);
+        border-radius: 40px;
+        padding: 0.75rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel:hover {
+        border-color: var(--gold);
+        color: var(--gold-light);
+        background: rgba(212, 168, 83, 0.05);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-card .card-body {
+            padding: 1.25rem;
+        }
+        
+        .form-card .card-header {
+            padding: 1rem 1.25rem;
+        }
+        
+        .form-card .card-header h3 {
+            font-size: 1.3rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="form-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-plus-circle me-2" style="color: var(--gold);"></i> Add New Address</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Address Type <i class="fas fa-asterisk"></i></label>
+                                <select name="address_type" class="form-select" required>
+                                    <option value="home">
+                                        <i class="fas fa-home"></i> Home
+                                    </option>
+                                    <option value="work">
+                                        <i class="fas fa-briefcase"></i> Work
+                                    </option>
+                                    <option value="other">
+                                        <i class="fas fa-map-marker-alt"></i> Other
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name <i class="fas fa-asterisk"></i></label>
+                                <input type="text" class="form-control" name="full_name" placeholder="John Doe" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone <i class="fas fa-asterisk"></i></label>
+                                <input type="tel" class="form-control" name="phone" placeholder="+250 788888884" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Country <i class="fas fa-asterisk"></i></label>
+                                <select class="form-select" name="country" required>
+                                    <option value="United States" selected>🇺🇸 United States</option>
+                                    <option value="Canada">🇨🇦 Canada</option>
+                                    <option value="United Kingdom">🇬🇧 United Kingdom</option>
+                                    <option value="Australia">Rw Rwanda</option>
+                                    <option value="Germany">🇩🇪 Germany</option>
+                                    <option value="France">🇫🇷 France</option>
+                                    <option value="Other">🌍 Other</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Address Line 1 <i class="fas fa-asterisk"></i></label>
+                                <input type="text" class="form-control" name="address_line1" placeholder="Street address, P.O. box" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Address Line 2</label>
+                                <input type="text" class="form-control" name="address_line2" placeholder="Apartment, suite, unit, etc. (optional)">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">City <i class="fas fa-asterisk"></i></label>
+                                <input type="text" class="form-control" name="city" placeholder="New York" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">State <i class="fas fa-asterisk"></i></label>
+                                <input type="text" class="form-control" name="state" placeholder="NY" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Postal Code <i class="fas fa-asterisk"></i></label>
+                                <input type="text" class="form-control" name="postal_code" placeholder="10001" required>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="is_default" id="is_default">
+                                    <label class="form-check-label" for="is_default">
+                                        <i class="fas fa-star me-1" style="color: var(--gold);"></i> Set as default address
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-3 mt-4">
+                            <button type="submit" class="btn-save">
+                                <i class="fas fa-save me-2"></i> Save Address
+                            </button>
+                            <a href="{% url 'accounts:addresses' %}" class="btn-cancel">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

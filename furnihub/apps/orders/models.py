@@ -12,6 +12,16 @@ class Order(models.Model):
         ('cancelled', 'Cancelled'),
         ('refunded', 'Refunded'),
     ]
+    PAYMENT_METHOD_CHOICES = [
+        ('cash_on_delivery', 'Cash on Delivery'),
+        ('mobile_money', 'Mobile Money'),
+        ('paypal', 'PayPal'),
+        ('stripe', 'Credit Card'),
+    ]
+    
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='cash_on_delivery')
+    mobile_money_provider = models.CharField(max_length=20, blank=True, null=True)
+    mobile_number = models.CharField(max_length=20, blank=True, null=True)
     
     PAYMENT_STATUS_CHOICES = [
         ('pending', 'Pending'),

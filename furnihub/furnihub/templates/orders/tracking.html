@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Track Order #{{ order.order_number }} - FurniHub{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Track Your Order</h5>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-center mb-4">Order #{{ order.order_number }}</h4>
+                    
+                    <!-- Tracking Timeline -->
+                    <div class="tracking-steps">
+                        <div class="tracking-step {% if order.created_at %}completed{% endif %}">
+                            <div class="step-icon">1</div>
+                            <div>Order Placed</div>
+                            <small>{{ order.created_at|date:"M d, Y" }}</small>
+                        </div>
+                        <div class="tracking-step {% if order.status == 'processing' or order.status == 'shipped' or order.status == 'delivered' %}completed{% elif order.status == 'pending' %}active{% endif %}">
+                            <div class="step-icon">2</div>
+                            <div>Processing</div>
+                        </div>
+                        <div class="tracking-step {% if order.status == 'shipped' or order.status == 'delivered' %}completed{% elif order.status == 'processing' %}active{% endif %}">
+                            <div class="step-icon">3</div>
+                            <div>Shipped</div>
+                            {% if order.tracking_number %}
+                                <small>Tracking: {{ order.tracking_number }}</small>
+                            {% endif %}
+                        </div>
+                        <div class="tracking-step {% if order.status == 'delivered' %}completed{% elif order.status == 'shipped' %}active{% endif %}">
+                            <div class="step-icon">4</div>
+                            <div>Delivered</div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-4 text-center">
+                        <i class="fas fa-truck me-2"></i>
+                        Your order is currently <strong>{{ order.get_status_display }}</strong>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-primary">
+                            <i class="fas fa-eye me-2"></i> View Order Details
+                        </a>
+                        <a href="{% url 'products:home' %}" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-shopping-bag me-2"></i> Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .tracking-steps {
+        display: flex;
+        justify-content: space-between;
+        margin: 30px 0;
+        position: relative;
+    }
+    
+    .tracking-steps::before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #dee2e6;
+        z-index: 1;
+    }
+    
+    .tracking-step {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        flex: 1;
+    }
+    
+    .tracking-step .step-icon {
+        width: 30px;
+        height: 30px;
+        background: white;
+        border: 2px solid #dee2e6;
+        border-radius: 50%;
+        margin: 0 auto 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+    
+    .tracking-step.active .step-icon {
+        background: #ffc107;
+        border-color: #ffc107;
+        color: #000;
+    }
+    
+    .tracking-step.completed .step-icon {
+        background: #28a745;
+        border-color: #28a745;
+        color: white;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+{% load static %}
+
+{% block admin_title %}Manage Orders{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 style="font-family: 'Cormorant Garamond', serif; color: var(--ivory);">
+        <i class="fas fa-shopping-bag me-2" style="color: var(--gold);"></i>Orders
+    </h2>
+    
+    <div>
+        <form method="GET" style="display: inline;">
+            <select name="status" class="form-select" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(212,168,83,0.2); border-radius: 10px; padding: 0.5rem 1rem; color: var(--ivory);" onchange="this.form.submit()">
+                <option value="">All Status</option>
+                {% for status_code, status_label in status_choices %}
+                    <option value="{{ status_code }}" {% if status_filter == status_code %}selected{% endif %}>{{ status_label }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+</div>
+
+<div class="admin-table">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td><strong>#{{ order.order_number }}</strong></td>
+                <td>{{ order.user.username }}</td>
+                <td>{{ order.created_at|date:"M d, Y" }}</td>
+                <td>{{ order.items.count }}</td>
+                <td style="color: var(--gold);">${{ order.total|floatformat:2 }}</td>
+                <td>
+                    <span class="badge-status {% if order.payment_status == 'paid' %}badge-paid{% else %}badge-pending{% endif %}">
+                        {{ order.payment_status|title }}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge-status {% if order.status == 'delivered' %}badge-paid{% elif order.status == 'cancelled' %}badge-pending{% else %}badge-pending{% endif %}">
+                        {{ order.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{% url 'admin_dashboard:order_detail' order.id %}" class="btn-admin" style="padding: 0.25rem 0.75rem;">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" style="text-align: center;">No orders yet</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
