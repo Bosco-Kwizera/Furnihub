@@ -54,19 +54,58 @@
         width: 20px;
     }
     
-    /* Password strength indicator */
-    .password-strength {
+    /* Password Strength Meter */
+    .strength-meter {
         margin-top: 0.5rem;
         height: 4px;
+        background: rgba(255, 255, 255, 0.1);
         border-radius: 2px;
-        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .strength-meter-fill {
+        width: 0%;
+        height: 100%;
+        transition: width 0.3s ease, background 0.3s ease;
     }
     
     .strength-text {
         font-family: 'Jost', sans-serif;
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         margin-top: 0.5rem;
         display: block;
+    }
+    
+    /* Password Requirements Checklist */
+    .password-requirements {
+        background: rgba(0, 0, 0, 0.25);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        margin-top: 0.75rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+    }
+    
+    .req-item {
+        color: var(--smoke);
+        margin-bottom: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+    
+    .req-item.valid {
+        color: #4caf81;
+    }
+    
+    .req-item.invalid {
+        color: #e87b6a;
+    }
+    
+    .req-item i {
+        width: 16px;
+        font-size: 0.7rem;
     }
     
     /* Fix for input text visibility while typing */
@@ -81,6 +120,7 @@
         color: #f5f0e8 !important;
         transition: all 0.3s ease;
         caret-color: var(--gold);
+        width: 100%;
     }
     
     .form-control:focus {
@@ -91,34 +131,9 @@
         color: #ffffff !important;
     }
     
-    /* Make text visible while typing */
-    .form-control:active,
-    .form-control:focus,
-    .form-control:not(:placeholder-shown) {
-        color: #ffffff !important;
-        font-weight: 500;
-    }
-    
-    /* Ensure input text is always visible */
-    input.form-control {
-        color: #ffffff !important;
-    }
-    
-    input.form-control:focus {
-        color: #ffffff !important;
-    }
-    
-    /* Placeholder styling */
     .form-control::placeholder {
         color: #a08f7a !important;
         opacity: 0.8 !important;
-        font-weight: 400 !important;
-        letter-spacing: 0.02em !important;
-    }
-    
-    .form-control:focus::placeholder {
-        color: #c9bda8 !important;
-        opacity: 0.5 !important;
     }
     
     /* Register Button */
@@ -144,7 +159,6 @@
         box-shadow: 0 6px 20px rgba(212, 168, 83, 0.3);
     }
     
-    /* Divider */
     .register-divider {
         display: flex;
         align-items: center;
@@ -169,7 +183,6 @@
         padding: 0 1rem;
     }
     
-    /* Login Link */
     .login-link {
         font-family: 'Jost', sans-serif;
         font-size: 0.8rem;
@@ -190,7 +203,6 @@
         text-decoration: underline;
     }
     
-    /* Responsive */
     @media (max-width: 768px) {
         .register-card .card-body {
             padding: 1.5rem;
@@ -240,9 +252,32 @@
                                 <i class="fas fa-lock"></i> Password
                             </label>
                             <input type="password" class="form-control" id="password" name="password" 
-                                   placeholder="Create a password" required>
-                            <div id="passwordStrength" class="password-strength"></div>
-                            <span id="strengthText" class="strength-text"></span>
+                                   placeholder="Create a strong password" required>
+                            
+                            <!-- Password Strength Meter -->
+                            <div class="strength-meter">
+                                <div class="strength-meter-fill" id="strengthFill"></div>
+                            </div>
+                            <span class="strength-text" id="strengthText"></span>
+                            
+                            <!-- Password Requirements Checklist -->
+                            <div class="password-requirements" id="passwordRequirements">
+                                <div class="req-item" id="req-length">
+                                    <i class="fas fa-circle"></i> At least 8 characters
+                                </div>
+                                <div class="req-item" id="req-upper">
+                                    <i class="fas fa-circle"></i> At least 1 uppercase letter (A-Z)
+                                </div>
+                                <div class="req-item" id="req-lower">
+                                    <i class="fas fa-circle"></i> At least 1 lowercase letter (a-z)
+                                </div>
+                                <div class="req-item" id="req-number">
+                                    <i class="fas fa-circle"></i> At least 1 number (0-9)
+                                </div>
+                                <div class="req-item" id="req-special">
+                                    <i class="fas fa-circle"></i> At least 1 special character (!@#$%^&*)
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="mb-3">
@@ -251,7 +286,7 @@
                             </label>
                             <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
                                    placeholder="Confirm your password" required>
-                            <div id="passwordMatch" style="font-family: 'Jost', sans-serif; font-size: 0.65rem; margin-top: 0.5rem;"></div>
+                            <div id="matchMessage" style="font-family: 'Jost', sans-serif; font-size: 0.7rem; margin-top: 0.5rem;"></div>
                         </div>
                         
                         <button type="submit" class="btn-register" id="registerBtn">
@@ -273,62 +308,86 @@
 </div>
 
 <script>
-    // Password strength checker
+    // Password strength checker with requirement tracking
     const passwordInput = document.getElementById('password');
     const confirmInput = document.getElementById('confirm_password');
-    const strengthDiv = document.getElementById('passwordStrength');
+    const strengthFill = document.getElementById('strengthFill');
     const strengthText = document.getElementById('strengthText');
-    const matchDiv = document.getElementById('passwordMatch');
-    const registerBtn = document.getElementById('registerBtn');
+    const matchMessage = document.getElementById('matchMessage');
+    
+    // Requirements elements
+    const reqLength = document.getElementById('req-length');
+    const reqUpper = document.getElementById('req-upper');
+    const reqLower = document.getElementById('req-lower');
+    const reqNumber = document.getElementById('req-number');
+    const reqSpecial = document.getElementById('req-special');
+    
+    function updateRequirement(element, isValid) {
+        if (isValid) {
+            element.classList.add('valid');
+            element.classList.remove('invalid');
+            element.innerHTML = '<i class="fas fa-check-circle"></i> ' + element.textContent.trim().replace(/[^\w\s]/g, '');
+        } else {
+            element.classList.add('invalid');
+            element.classList.remove('valid');
+            element.innerHTML = '<i class="fas fa-circle"></i> ' + element.textContent.trim().replace(/[^\w\s]/g, '');
+        }
+    }
     
     function checkPasswordStrength(password) {
-        let strength = 0;
-        let message = '';
-        let color = '';
+        let tests = {
+            length: password.length >= 8,
+            upper: /[A-Z]/.test(password),
+            lower: /[a-z]/.test(password),
+            number: /[0-9]/.test(password),
+            special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+        };
         
-        if (password.length >= 8) strength++;
-        if (password.match(/[a-z]+/)) strength++;
-        if (password.match(/[A-Z]+/)) strength++;
-        if (password.match(/[0-9]+/)) strength++;
-        if (password.match(/[$@#&!]+/)) strength++;
+        // Update requirement icons
+        updateRequirement(reqLength, tests.length);
+        updateRequirement(reqUpper, tests.upper);
+        updateRequirement(reqLower, tests.lower);
+        updateRequirement(reqNumber, tests.number);
+        updateRequirement(reqSpecial, tests.special);
         
-        switch(strength) {
+        // Calculate strength score (0-5)
+        let score = Object.values(tests).filter(Boolean).length;
+        
+        // Update strength meter
+        let percentage = (score / 5) * 100;
+        strengthFill.style.width = percentage + '%';
+        
+        // Update color and text based on score
+        let color, message;
+        switch(score) {
             case 0:
             case 1:
-                message = 'Very Weak';
                 color = '#e87b6a';
+                message = 'Very Weak';
                 break;
             case 2:
-                message = 'Weak';
                 color = '#e8a86a';
+                message = 'Weak';
                 break;
             case 3:
-                message = 'Fair';
                 color = '#e8c86a';
+                message = 'Fair';
                 break;
             case 4:
-                message = 'Good';
                 color = '#9ccc65';
+                message = 'Good';
                 break;
             case 5:
-                message = 'Strong';
                 color = '#4caf81';
+                message = 'Strong';
                 break;
         }
         
-        if (password.length === 0) {
-            message = '';
-            strengthDiv.style.width = '0%';
-        } else {
-            strengthDiv.style.width = (strength * 20) + '%';
-            strengthDiv.style.background = color;
-            strengthDiv.style.borderRadius = '2px';
-        }
-        
+        strengthFill.style.background = color;
         strengthText.textContent = message;
         strengthText.style.color = color;
         
-        return strength;
+        return score === 5;
     }
     
     function checkPasswordMatch() {
@@ -336,17 +395,17 @@
         const confirm = confirmInput.value;
         
         if (confirm.length === 0) {
-            matchDiv.textContent = '';
+            matchMessage.textContent = '';
             return false;
         }
         
         if (password === confirm) {
-            matchDiv.textContent = '✓ Passwords match';
-            matchDiv.style.color = '#4caf81';
+            matchMessage.textContent = '✓ Passwords match';
+            matchMessage.style.color = '#4caf81';
             return true;
         } else {
-            matchDiv.textContent = '✗ Passwords do not match';
-            matchDiv.style.color = '#e87b6a';
+            matchMessage.textContent = '✗ Passwords do not match';
+            matchMessage.style.color = '#e87b6a';
             return false;
         }
     }
@@ -365,17 +424,30 @@
         const password = passwordInput.value;
         const confirm = confirmInput.value;
         
+        // Check if passwords match
         if (password !== confirm) {
             e.preventDefault();
             alert('Passwords do not match. Please try again.');
             return false;
         }
         
-        if (password.length < 6) {
+        // Check if password meets all requirements
+        const isStrong = checkPasswordStrength(password);
+        
+        if (!isStrong) {
             e.preventDefault();
-            alert('Password must be at least 6 characters long.');
+            alert('Please create a stronger password.\n\nYour password must meet all the requirements shown below:\n• At least 8 characters\n• At least 1 uppercase letter\n• At least 1 lowercase letter\n• At least 1 number\n• At least 1 special character (!@#$%^&*)');
+            return false;
+        }
+        
+        if (password.length < 8) {
+            e.preventDefault();
+            alert('Password must be at least 8 characters long.');
             return false;
         }
     });
+    
+    // Initial check to set requirement colors
+    checkPasswordStrength('');
 </script>
 {% endblock %}
