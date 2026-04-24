@@ -12,7 +12,10 @@
             <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
         </div>
         <div class="stat-value">{{ total_orders }}</div>
-        <div class="stat-change"><i class="fas fa-chart-line"></i> Last 30 days</div>
+        <div class="stat-change">
+            <i class="fas fa-calendar-day me-1"></i> 
+            Today: {{ today_orders }} orders
+        </div>
     </div>
     
     <div class="stat-card">
@@ -38,40 +41,133 @@
             <span class="stat-title">Total Revenue</span>
             <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
         </div>
-        <div class="stat-value">${{ total_revenue|floatformat:0 }}</div>
-        <div class="stat-change"><i class="fas fa-chart-line"></i> All time sales</div>
+        <div class="stat-value">${{ total_revenue|floatformat:2 }}</div>
+        <div class="stat-change">
+            <i class="fas fa-chart-line me-1"></i> 
+            Today: ${{ today_revenue|floatformat:2 }}
+        </div>
     </div>
 </div>
 
-<!-- Orders by Status -->
+<!-- Revenue Breakdown Cards -->
 <div class="stats-grid" style="margin-top: 0;">
     <div class="stat-card">
         <div class="stat-header">
-            <span class="stat-title">Pending</span>
-            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <span class="stat-title">Paid Revenue</span>
+            <div class="stat-icon"><i class="fas fa-check-circle" style="color: #4caf81;"></i></div>
         </div>
-        <div class="stat-value">{{ orders_by_status.pending }}</div>
+        <div class="stat-value">${{ paid_revenue|floatformat:2 }}</div>
+        <div class="stat-change" style="color: #4caf81;">Completed payments</div>
     </div>
+    
     <div class="stat-card">
         <div class="stat-header">
-            <span class="stat-title">Processing</span>
-            <div class="stat-icon"><i class="fas fa-cogs"></i></div>
+            <span class="stat-title">Pending Revenue</span>
+            <div class="stat-icon"><i class="fas fa-clock" style="color: var(--gold);"></i></div>
         </div>
-        <div class="stat-value">{{ orders_by_status.processing }}</div>
+        <div class="stat-value">${{ pending_revenue|floatformat:2 }}</div>
+        <div class="stat-change" style="color: var(--gold);">Awaiting payment</div>
     </div>
+    
     <div class="stat-card">
         <div class="stat-header">
-            <span class="stat-title">Shipped</span>
-            <div class="stat-icon"><i class="fas fa-truck"></i></div>
+            <span class="stat-title">Cash on Delivery</span>
+            <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
         </div>
-        <div class="stat-value">{{ orders_by_status.shipped }}</div>
+        <div class="stat-value">${{ cash_on_delivery_revenue|floatformat:2 }}</div>
+        <div class="stat-change">By COD orders</div>
     </div>
+    
     <div class="stat-card">
         <div class="stat-header">
-            <span class="stat-title">Delivered</span>
-            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <span class="stat-title">Mobile Money</span>
+            <div class="stat-icon"><i class="fas fa-mobile-alt"></i></div>
         </div>
-        <div class="stat-value">{{ orders_by_status.delivered }}</div>
+        <div class="stat-value">${{ mobile_money_revenue|floatformat:2 }}</div>
+        <div class="stat-change">By Mobile Money</div>
+    </div>
+</div>
+
+<!-- Orders by Status & Payment Methods -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="admin-table">
+            <div style="padding: 1rem 1.5rem; background: var(--walnut); border-bottom: 1px solid rgba(212,168,83,0.1);">
+                <h5 style="margin: 0; color: var(--gold);">
+                    <i class="fas fa-chart-pie me-2"></i> Orders by Status
+                </h5>
+            </div>
+            <div style="padding: 1rem;">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center p-2">
+                            <div class="stat-value" style="font-size: 1.8rem;">{{ orders_by_status.pending }}</div>
+                            <small>Pending</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center p-2">
+                            <div class="stat-value" style="font-size: 1.8rem;">{{ orders_by_status.processing }}</div>
+                            <small>Processing</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mt-2">
+                        <div class="text-center p-2">
+                            <div class="stat-value" style="font-size: 1.8rem;">{{ orders_by_status.shipped }}</div>
+                            <small>Shipped</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mt-2">
+                        <div class="text-center p-2">
+                            <div class="stat-value" style="font-size: 1.8rem;">{{ orders_by_status.delivered }}</div>
+                            <small>Delivered</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="admin-table">
+            <div style="padding: 1rem 1.5rem; background: var(--walnut); border-bottom: 1px solid rgba(212,168,83,0.1);">
+                <h5 style="margin: 0; color: var(--gold);">
+                    <i class="fas fa-credit-card me-2"></i> Payment Methods
+                </h5>
+            </div>
+            <div style="padding: 1rem;">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center p-2">
+                            <div class="stat-value" style="font-size: 1.8rem;">{{ payment_by_method.cash_on_delivery|default:0 }}</div>
+                            <small><i class="fas fa-money-bill-wave me-1"></i> Cash on Delivery</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center p-2">
+                            <div class="stat-value" style="font-size: 1.8rem;">{{ payment_by_method.mobile_money|default:0 }}</div>
+                            <small><i class="fas fa-mobile-alt me-1"></i> Mobile Money</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2 pt-2 border-top border-secondary">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="text-center">
+                                <small class="text-muted">Paid Orders</small>
+                                <div class="fw-bold text-success">{{ payment_by_status.paid|default:0 }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center">
+                                <small class="text-muted">Pending Payment</small>
+                                <div class="fw-bold text-warning">{{ payment_by_status.pending|default:0 }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -79,67 +175,92 @@
     <!-- Recent Orders -->
     <div class="col-lg-8">
         <div class="admin-table">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Order #</th>
-                        <th>Customer</th>
-                        <th>Date</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in recent_orders %}
-                    <tr>
-                        <td>#{{ order.order_number }}</td>
-                        <td>{{ order.user.username }}</td>
-                        <td>{{ order.created_at|date:"M d, Y" }}</td>
-                        <td>${{ order.total|floatformat:2 }}</td>
-                        <td>
-                            <span class="badge-status {% if order.status == 'delivered' %}badge-paid{% else %}badge-pending{% endif %}">
-                                {{ order.get_status_display }}
-                            </span>
-                        </td>
-                        <td>
-                            <a href="{% url 'admin_dashboard:order_detail' order.id %}" class="btn-admin" style="padding: 0.25rem 0.75rem;">
-                                View
-                            </a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" style="text-align: center;">No orders yet</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div style="padding: 1rem 1.5rem; background: var(--walnut); border-bottom: 1px solid rgba(212,168,83,0.1);">
+                <h5 style="margin: 0; color: var(--gold);">
+                    <i class="fas fa-clock me-2"></i> Recent Orders
+                </h5>
+            </div>
+            <div class="table-responsive">
+                <table class="admin-table" style="margin: 0;">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td>#{{ order.order_number }}</td>
+                            <td>{{ order.user.username }}</td>
+                            <td>{{ order.created_at|date:"M d, Y" }}</td>
+                            <td style="color: var(--gold);">${{ order.total|floatformat:2 }}</td>
+                            <td>
+                                <span class="badge-status {% if order.status == 'delivered' %}badge-paid{% else %}badge-pending{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge-status {% if order.payment_status == 'paid' %}badge-paid{% else %}badge-pending{% endif %}">
+                                    {{ order.payment_status|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'admin_dashboard:order_detail' order.id %}" class="btn-admin" style="padding: 0.25rem 0.75rem;">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" style="text-align: center;">No orders yet</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     
     <!-- Low Stock Alert -->
     <div class="col-lg-4">
         <div class="admin-table">
-            <table>
-                <thead>
-                    <tr><th>Low Stock Alert</th></tr>
-                </thead>
-                <tbody>
-                    {% for product in low_stock %}
-                    <tr>
-                        <td>
-                            <strong>{{ product.name }}</strong><br>
-                            <small>Stock: {{ product.stock_quantity }} left</small>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td style="text-align: center;">All products have good stock</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div style="padding: 1rem 1.5rem; background: var(--walnut); border-bottom: 1px solid rgba(212,168,83,0.1);">
+                <h5 style="margin: 0; color: var(--gold);">
+                    <i class="fas fa-exclamation-triangle me-2"></i> Low Stock Alert
+                </h5>
+            </div>
+            <div style="padding: 0;">
+                <table class="admin-table" style="margin: 0;">
+                    <tbody>
+                        {% for product in low_stock %}
+                        <tr>
+                            <td style="padding: 0.75rem 1rem;">
+                                <strong>{{ product.name }}</strong><br>
+                                <small style="color: #e87b6a;">Stock: {{ product.stock_quantity }} left</small>
+                            </td>
+                            <td style="padding: 0.75rem 1rem; text-align: right;">
+                                <a href="{% url 'admin_dashboard:edit_product' product.id %}" class="btn-admin" style="padding: 0.25rem 0.75rem;">
+                                    Restock
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td style="text-align: center; padding: 2rem;">
+                                <i class="fas fa-check-circle" style="color: #4caf81; font-size: 2rem;"></i>
+                                <p class="mt-2">All products have good stock</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -149,13 +270,13 @@
     <div class="col-12">
         <div class="admin-topbar" style="justify-content: center; gap: 1rem;">
             <a href="{% url 'admin_dashboard:add_product' %}" class="btn-admin btn-admin-primary">
-                <i class="fas fa-plus"></i> Add Product
+                <i class="fas fa-plus me-2"></i> Add Product
             </a>
             <a href="{% url 'admin_dashboard:add_category' %}" class="btn-admin">
-                <i class="fas fa-folder-plus"></i> Add Category
+                <i class="fas fa-folder-plus me-2"></i> Add Category
             </a>
-            <a href="{% url 'admin:index' %}" class="btn-admin">
-                <i class="fas fa-cog"></i> Django Admin
+            <a href="{% url 'admin_dashboard:reports' %}" class="btn-admin">
+                <i class="fas fa-chart-line me-2"></i> View Reports
             </a>
         </div>
     </div>

@@ -113,11 +113,30 @@ def place_order(request):
             messages.error(request, f'Error creating address: {str(e)}')
             return redirect('orders:checkout')
     
+    # Get payment method from POST data
+    payment_method = request.POST.get('payment_method', 'cash_on_delivery')
+    
+    # Get mobile money details if applicable
+    mobile_money_provider = None
+    mobile_number = None
+    
+    if payment_method == 'mobile_money':
+        mobile_money_provider = request.POST.get('mobile_money_provider')
+        mobile_number = request.POST.get('mobile_number')
+    
     # Calculate totals
     subtotal = cart.get_subtotal()
     tax = cart.get_tax()
     shipping_cost = Decimal('0.00')
     total = subtotal + tax + shipping_cost
+    
+    # Determine payment status based on payment method
+    if payment_method == 'cash_on_delivery':
+        payment_status = 'pending'
+    elif payment_method == 'mobile_money':
+        payment_status = 'pending'  # Change to 'paid' if payment is instant
+    else:
+        payment_status = 'pending'
     
     # Create order
     try:
@@ -130,7 +149,11 @@ def place_order(request):
             shipping_address=address,
             shipping_name=address.full_name,
             shipping_phone=address.phone,
-            notes=request.POST.get('notes', '')
+            notes=request.POST.get('notes', ''),
+            payment_method=payment_method,
+            payment_status=payment_status,
+            mobile_money_provider=mobile_money_provider,
+            mobile_number=mobile_number,
         )
     except Exception as e:
         messages.error(request, f'Error creating order: {str(e)}')
@@ -266,11 +289,19 @@ class OrderViewSet(viewsets.ModelViewSet):
             
             address = Address.objects.create(user=request.user, **address_data)
         
+        # Get payment method data
+        payment_method = serializer.validated_data.get('payment_method', 'cash_on_delivery')
+        mobile_money_provider = serializer.validated_data.get('mobile_money_provider')
+        mobile_number = serializer.validated_data.get('mobile_number')
+        
         # Calculate totals
         subtotal = cart.get_subtotal()
         tax = cart.get_tax()
         shipping_cost = Decimal(str(serializer.validated_data.get('shipping_cost', 0)))
         total = subtotal + tax + shipping_cost
+        
+        # Determine payment status
+        payment_status = 'pending'
         
         # Create order
         order = Order.objects.create(
@@ -282,7 +313,11 @@ class OrderViewSet(viewsets.ModelViewSet):
             shipping_address=address,
             shipping_name=address.full_name,
             shipping_phone=address.phone,
-            notes=serializer.validated_data.get('notes', '')
+            notes=serializer.validated_data.get('notes', ''),
+            payment_method=payment_method,
+            payment_status=payment_status,
+            mobile_money_provider=mobile_money_provider,
+            mobile_number=mobile_number,
         )
         
         # Create order items

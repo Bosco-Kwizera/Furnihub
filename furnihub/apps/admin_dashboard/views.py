@@ -3,12 +3,14 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db.models import Count, Sum, Q
 from django.utils import timezone
-from datetime import timedelta
+from datetime import datetime, timedelta
 from apps.products.models import Product, Category, ProductImage
-from apps.orders.models import Order
+from apps.orders.models import Order, OrderStatusHistory
 from django.contrib.auth.models import User, Group, Permission
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from decimal import Decimal
+import csv
+from openpyxl import Workbook
 
 
 def admin_required(view_func):
@@ -27,7 +29,16 @@ def dashboard(request):
     total_orders = Order.objects.count()
     total_products = Product.objects.count()
     total_users = User.objects.count()
-    total_revenue = Order.objects.filter(payment_status='paid').aggregate(Sum('total'))['total__sum'] or Decimal('0')
+    
+    # FIXED: Calculate total revenue from ALL orders (not just paid)
+    # This ensures you see revenue even if payment status is not updated
+    total_revenue = Order.objects.aggregate(Sum('total'))['total__sum'] or Decimal('0')
+    
+    # For detailed breakdown
+    paid_revenue = Order.objects.filter(payment_status='paid').aggregate(Sum('total'))['total__sum'] or Decimal('0')
+    pending_revenue = Order.objects.filter(payment_status='pending').aggregate(Sum('total'))['total__sum'] or Decimal('0')
+    cash_on_delivery_revenue = Order.objects.filter(payment_method='cash_on_delivery').aggregate(Sum('total'))['total__sum'] or Decimal('0')
+    mobile_money_revenue = Order.objects.filter(payment_method='mobile_money').aggregate(Sum('total'))['total__sum'] or Decimal('0')
     
     # Recent orders
     recent_orders = Order.objects.order_by('-created_at')[:5]
@@ -44,6 +55,22 @@ def dashboard(request):
         'cancelled': Order.objects.filter(status='cancelled').count(),
     }
     
+    # Orders by payment status
+    payment_by_status = {
+        'paid': Order.objects.filter(payment_status='paid').count(),
+        'pending': Order.objects.filter(payment_status='pending').count(),
+        'failed': Order.objects.filter(payment_status='failed').count(),
+        'refunded': Order.objects.filter(payment_status='refunded').count(),
+    }
+    
+    # Orders by payment method
+    payment_by_method = {
+        'cash_on_delivery': Order.objects.filter(payment_method='cash_on_delivery').count(),
+        'mobile_money': Order.objects.filter(payment_method='mobile_money').count(),
+        'paypal': Order.objects.filter(payment_method='paypal').count(),
+        'stripe': Order.objects.filter(payment_method='stripe').count(),
+    }
+    
     # Recent activity
     recent_activity = []
     
@@ -56,14 +83,27 @@ def dashboard(request):
             'order_id': order.id
         })
     
+    # Get today's stats
+    today = timezone.now().date()
+    today_orders = Order.objects.filter(created_at__date=today).count()
+    today_revenue = Order.objects.filter(created_at__date=today).aggregate(Sum('total'))['total__sum'] or Decimal('0')
+    
     context = {
         'total_orders': total_orders,
         'total_products': total_products,
         'total_users': total_users,
         'total_revenue': total_revenue,
+        'paid_revenue': paid_revenue,
+        'pending_revenue': pending_revenue,
+        'cash_on_delivery_revenue': cash_on_delivery_revenue,
+        'mobile_money_revenue': mobile_money_revenue,
+        'today_orders': today_orders,
+        'today_revenue': today_revenue,
         'recent_orders': recent_orders,
         'low_stock': low_stock,
         'orders_by_status': orders_by_status,
+        'payment_by_status': payment_by_status,
+        'payment_by_method': payment_by_method,
         'recent_activity': recent_activity[:10],
     }
     return render(request, 'admin_dashboard/dashboard.html', context)
@@ -100,9 +140,50 @@ def update_order_status(request, order_id):
     if request.method == 'POST':
         order = get_object_or_404(Order, id=order_id)
         new_status = request.POST.get('status')
+        note = request.POST.get('note', '')
+        
+        old_status = order.status
         order.status = new_status
         order.save()
+        
+        # Add to status history
+        OrderStatusHistory.objects.create(
+            order=order,
+            status=new_status,
+            note=f'Status changed from {old_status} to {new_status}. {note}',
+            created_by=request.user
+        )
+        
         messages.success(request, f'Order #{order.order_number} status updated to {order.get_status_display()}')
+    return redirect('admin_dashboard:order_detail', order_id=order_id)
+
+
+# ==================== PAYMENT STATUS UPDATE VIEW ====================
+
+@admin_required
+def update_payment_status(request, order_id):
+    """Update payment status of an order"""
+    if request.method == 'POST':
+        order = get_object_or_404(Order, id=order_id)
+        new_payment_status = request.POST.get('payment_status')
+        note = request.POST.get('note', '')
+        
+        old_status = order.payment_status
+        
+        # Update payment status
+        order.payment_status = new_payment_status
+        order.save()
+        
+        # Add to status history
+        OrderStatusHistory.objects.create(
+            order=order,
+            status=order.status,
+            note=f'Payment status changed from {old_status} to {new_payment_status}. {note}',
+            created_by=request.user
+        )
+        
+        messages.success(request, f'Payment status for Order #{order.order_number} updated to {new_payment_status}')
+        
     return redirect('admin_dashboard:order_detail', order_id=order_id)
 
 
@@ -400,3 +481,245 @@ def get_group_permissions(request, group_id):
     group = get_object_or_404(Group, id=group_id)
     permissions = list(group.permissions.values_list('id', flat=True))
     return JsonResponse({'permissions': permissions})
+
+
+# ==================== REPORTS & ANALYTICS VIEWS ====================
+
+@admin_required
+def reports_view(request):
+    """Main reports dashboard"""
+    # Get date filters
+    date_range = request.GET.get('date_range', 'today')
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+    
+    # Calculate date range based on selection
+    now = timezone.now()
+    today = now.date()
+    
+    if start_date_str and end_date_str:
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        date_range = 'custom'
+    elif date_range == 'today':
+        start_date = today
+        end_date = today
+    elif date_range == 'yesterday':
+        start_date = today - timedelta(days=1)
+        end_date = today - timedelta(days=1)
+    elif date_range == 'week':
+        start_date = today - timedelta(days=7)
+        end_date = today
+    elif date_range == 'month':
+        start_date = today - timedelta(days=30)
+        end_date = today
+    elif date_range == 'year':
+        start_date = today - timedelta(days=365)
+        end_date = today
+    else:
+        start_date = today
+        end_date = today
+    
+    # Filter orders by date range
+    orders = Order.objects.filter(
+        created_at__date__gte=start_date,
+        created_at__date__lte=end_date
+    ).order_by('-created_at')
+    
+    # Calculate statistics
+    total_orders = orders.count()
+    total_revenue = orders.aggregate(Sum('total'))['total__sum'] or Decimal('0')
+    avg_order_value = total_revenue / total_orders if total_orders > 0 else Decimal('0')
+    
+    # Orders by status
+    orders_by_status = {}
+    for status_code, status_label in Order.STATUS_CHOICES:
+        orders_by_status[status_label] = orders.filter(status=status_code).count()
+    
+    # Daily breakdown
+    daily_data = []
+    current_date = start_date
+    while current_date <= end_date:
+        day_orders = orders.filter(created_at__date=current_date)
+        daily_data.append({
+            'date': current_date,
+            'orders': day_orders.count(),
+            'revenue': day_orders.aggregate(Sum('total'))['total__sum'] or Decimal('0')
+        })
+        current_date += timedelta(days=1)
+    
+    context = {
+        'orders': orders,
+        'total_orders': total_orders,
+        'total_revenue': total_revenue,
+        'avg_order_value': avg_order_value,
+        'orders_by_status': orders_by_status,
+        'daily_data': daily_data,
+        'start_date': start_date,
+        'end_date': end_date,
+        'date_range': date_range,
+        'status_choices': Order.STATUS_CHOICES,
+    }
+    return render(request, 'admin_dashboard/reports.html', context)
+
+
+@admin_required
+def export_orders_csv(request):
+    """Export orders to CSV format"""
+    # Get date range from request
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+    
+    if start_date_str and end_date_str:
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        orders = Order.objects.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date
+        ).order_by('-created_at')
+    else:
+        orders = Order.objects.all().order_by('-created_at')
+    
+    # Create CSV response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="orders_report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+    
+    writer = csv.writer(response)
+    
+    # Write headers
+    writer.writerow([
+        'Order Number', 'Customer', 'Email', 'Date', 'Status', 
+        'Payment Status', 'Subtotal', 'Tax', 'Shipping', 'Total', 
+        'Items Count', 'Shipping Name', 'Shipping Phone', 'Shipping Address'
+    ])
+    
+    # Write data rows
+    for order in orders:
+        writer.writerow([
+            order.order_number,
+            order.user.username,
+            order.user.email,
+            order.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            order.get_status_display(),
+            order.payment_status,
+            float(order.subtotal),
+            float(order.tax),
+            float(order.shipping_cost),
+            float(order.total),
+            order.get_items_count(),
+            order.shipping_name,
+            order.shipping_phone,
+            f"{order.shipping_address.address_line1}, {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postal_code}, {order.shipping_address.country}"
+        ])
+    
+    return response
+
+
+@admin_required
+def export_orders_excel(request):
+    """Export orders to Excel format"""
+    # Get date range from request
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+    
+    if start_date_str and end_date_str:
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        orders = Order.objects.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date
+        ).order_by('-created_at')
+    else:
+        orders = Order.objects.all().order_by('-created_at')
+    
+    # Create Excel workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Orders Report"
+    
+    # Define headers
+    headers = [
+        'Order Number', 'Customer', 'Email', 'Date', 'Status', 
+        'Payment Status', 'Subtotal', 'Tax', 'Shipping', 'Total', 
+        'Items Count', 'Shipping Name', 'Shipping Phone', 'Shipping Address'
+    ]
+    
+    # Write headers
+    for col, header in enumerate(headers, 1):
+        ws.cell(row=1, column=col, value=header)
+    
+    # Write data rows
+    for row, order in enumerate(orders, 2):
+        ws.cell(row=row, column=1, value=order.order_number)
+        ws.cell(row=row, column=2, value=order.user.username)
+        ws.cell(row=row, column=3, value=order.user.email)
+        ws.cell(row=row, column=4, value=order.created_at.strftime('%Y-%m-%d %H:%M:%S'))
+        ws.cell(row=row, column=5, value=order.get_status_display())
+        ws.cell(row=row, column=6, value=order.payment_status)
+        ws.cell(row=row, column=7, value=float(order.subtotal))
+        ws.cell(row=row, column=8, value=float(order.tax))
+        ws.cell(row=row, column=9, value=float(order.shipping_cost))
+        ws.cell(row=row, column=10, value=float(order.total))
+        ws.cell(row=row, column=11, value=order.get_items_count())
+        ws.cell(row=row, column=12, value=order.shipping_name)
+        ws.cell(row=row, column=13, value=order.shipping_phone)
+        ws.cell(row=row, column=14, value=f"{order.shipping_address.address_line1}, {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postal_code}")
+    
+    # Adjust column widths
+    for column in ws.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = min(max_length + 2, 50)
+        ws.column_dimensions[column_letter].width = adjusted_width
+    
+    # Create response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="orders_report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx"'
+    
+    wb.save(response)
+    return response
+
+
+@admin_required
+def export_products_csv(request):
+    """Export products to CSV format"""
+    products = Product.objects.all()
+    
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="products_report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+    
+    writer = csv.writer(response)
+    
+    # Write headers
+    writer.writerow([
+        'ID', 'Name', 'Category', 'Price', 'Compare Price', 'Stock', 
+        'Brand', 'Material', 'Color', 'Dimensions', 'Status', 'Featured', 'Created Date'
+    ])
+    
+    # Write data rows
+    for product in products:
+        writer.writerow([
+            product.id,
+            product.name,
+            product.category.name,
+            float(product.price),
+            float(product.compare_price) if product.compare_price else '',
+            product.stock_quantity,
+            product.brand or '',
+            product.material or '',
+            product.color or '',
+            product.dimensions or '',
+            'Active' if product.is_active else 'Inactive',
+            'Yes' if product.is_featured else 'No',
+            product.created_at.strftime('%Y-%m-%d')
+        ])
+    
+    return response

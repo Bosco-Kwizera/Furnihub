@@ -33,4 +33,10 @@ urlpatterns = [
     # User Roles & Permissions
     path('user-roles/', views.user_roles, name='user_roles'),
     path('api/group-permissions/<int:group_id>/', views.get_group_permissions, name='get_group_permissions'),
+    # Add to your urlpatterns
+    path('reports/', views.reports_view, name='reports'),
+    path('export/orders/csv/', views.export_orders_csv, name='export_orders_csv'),
+    path('export/orders/excel/', views.export_orders_excel, name='export_orders_excel'),
+    path('export/products/csv/', views.export_products_csv, name='export_products_csv'),
+    path('orders/<int:order_id>/update-payment/', views.update_payment_status, name='update_payment_status'),
 ]
