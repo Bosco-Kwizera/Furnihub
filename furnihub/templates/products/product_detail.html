@@ -231,7 +231,7 @@
         border: 1px solid rgba(212, 168, 83, 0.2);
         border-radius: 12px;
         padding: 0.5rem;
-        width: 70px;
+        width: 80px;
         font-family: 'Jost', sans-serif;
         font-size: 0.9rem;
         color: var(--ivory);
@@ -255,12 +255,19 @@
         text-transform: uppercase;
         color: var(--espresso);
         transition: all 0.3s ease;
+        cursor: pointer;
     }
     
     .btn-add-cart:hover {
         background: var(--gold-light);
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(212, 168, 83, 0.3);
+    }
+    
+    .btn-add-cart:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
     }
     
     .btn-wishlist {
@@ -275,6 +282,7 @@
         text-transform: uppercase;
         color: var(--parchment);
         transition: all 0.3s ease;
+        cursor: pointer;
     }
     
     .btn-wishlist:hover {
@@ -501,6 +509,7 @@
         text-transform: uppercase;
         color: var(--parchment);
         transition: all 0.3s ease;
+        cursor: pointer;
     }
     
     .btn-related-cart:hover {
@@ -540,6 +549,15 @@
         
         .thumbnail-images img {
             height: 60px;
+        }
+        
+        .quantity-input {
+            width: 60px;
+        }
+        
+        .btn-add-cart, .btn-wishlist {
+            padding: 0.5rem 1rem;
+            font-size: 0.6rem;
         }
     }
 </style>
@@ -640,7 +658,7 @@
                 </div>
             {% endif %}
             
-            <!-- Add to Cart Section -->
+            <!-- Add to Cart Section - FIXED WITH DIRECT FORM -->
             {% if user.is_authenticated %}
                 {% if product.stock_quantity > 0 %}
                     <div class="cart-card">
@@ -878,17 +896,13 @@
             
             // Change main image without page jump
             if (mainImage && fullImageUrl !== mainImage.src) {
-                // Store current scroll position
                 const scrollY = window.scrollY;
-                
-                // Fade out, change image, fade in
                 mainImage.style.opacity = '0.3';
                 setTimeout(() => {
                     mainImage.src = fullImageUrl;
                 }, 100);
                 setTimeout(() => {
                     mainImage.style.opacity = '1';
-                    // Restore scroll position
                     window.scrollTo(0, scrollY);
                 }, 250);
             }
@@ -902,7 +916,6 @@
             const max = parseInt(this.max);
             const min = parseInt(this.min);
             let value = parseInt(this.value);
-            
             if (isNaN(value)) value = min;
             if (value < min) this.value = min;
             if (value > max) this.value = max;

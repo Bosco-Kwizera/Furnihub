@@ -54,4 +54,5 @@ urlpatterns = [
     
     # Orders
     path('orders/', views.orders_view, name='orders'),
+    path('change-password/', views.change_password_view, name='change_password'),
 ]

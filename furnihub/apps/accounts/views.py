@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash  # Added update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -272,24 +272,29 @@ def orders_view(request):
     return render(request, 'accounts/orders.html', {'orders': orders})
 
 
-# ==================== PASSWORD RESET VIEWS (Optional) ====================
+# ==================== PASSWORD CHANGE VIEW ====================
 
 @login_required
 def change_password_view(request):
     """Allow users to change their password"""
     if request.method == 'POST':
-        old_password = request.POST.get('old_password')
+        current_password = request.POST.get('current_password')
         new_password = request.POST.get('new_password')
         confirm_password = request.POST.get('confirm_password')
         
-        # Check old password
-        if not request.user.check_password(old_password):
+        # Check current password
+        if not request.user.check_password(current_password):
             messages.error(request, 'Current password is incorrect')
             return redirect('accounts:change_password')
         
         # Check if new passwords match
         if new_password != confirm_password:
             messages.error(request, 'New passwords do not match')
+            return redirect('accounts:change_password')
+        
+        # Check if new password is same as old password
+        if current_password == new_password:
+            messages.error(request, 'New password must be different from current password')
             return redirect('accounts:change_password')
         
         # Validate strong password
@@ -303,8 +308,11 @@ def change_password_view(request):
         request.user.set_password(new_password)
         request.user.save()
         
-        messages.success(request, 'Your password has been changed successfully! Please login again.')
-        return redirect('accounts:login')
+        # Keep the user logged in after password change
+        update_session_auth_hash(request, request.user)
+        
+        messages.success(request, 'Your password has been changed successfully!')
+        return redirect('accounts:profile')
     
     return render(request, 'accounts/change_password.html')
 
@@ -350,6 +358,8 @@ class UserViewSet(viewsets.ModelViewSet):
         
         user.set_password(new_password)
         user.save()
+        
+        # Keep user logged in after password change (for API, client needs new token)
         return Response({'message': 'Password changed successfully'})
     
     @action(detail=False, methods=['post'])
