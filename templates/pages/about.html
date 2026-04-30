@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us - FurniHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-hero {
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url('https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg');
+        background-size: cover;
+        background-position: center;
+        padding: 100px 0;
+        text-align: center;
+    }
+    
+    .about-hero h1 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 3rem;
+        color: var(--ivory);
+        margin-bottom: 1rem;
+    }
+    
+    .about-hero p {
+        color: var(--parchment);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .mission-card {
+        background: var(--mahogany);
+        border: 1px solid rgba(212,168,83,0.12);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .mission-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(212,168,83,0.25);
+    }
+    
+    .mission-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(212,168,83,0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+    }
+    
+    .mission-icon i {
+        font-size: 2rem;
+        color: var(--gold);
+    }
+    
+    .story-section {
+        background: var(--walnut);
+        border-radius: 24px;
+        padding: 3rem;
+        margin: 3rem 0;
+    }
+    
+    .team-card {
+        background: var(--mahogany);
+        border: 1px solid rgba(212,168,83,0.12);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .team-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(212,168,83,0.25);
+    }
+    
+    .team-image {
+        height: 250px;
+        background: var(--espresso);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .team-image i {
+        font-size: 4rem;
+        color: var(--smoke);
+        opacity: 0.5;
+    }
+    
+    .value-badge {
+        background: rgba(212,168,83,0.1);
+        border: 1px solid rgba(212,168,83,0.2);
+        border-radius: 40px;
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        color: var(--gold);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="about-hero">
+    <div class="container">
+        <h1>Our Story</h1>
+        <p>Crafting beautiful spaces since 2018</p>
+    </div>
+</section>
+
+<div class="container mt-5">
+    <!-- Mission & Vision -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="mission-card">
+                <div class="mission-icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <h3 style="color: var(--gold);">Our Mission</h3>
+                <p style="color: var(--parchment);">To provide premium, sustainable furniture that transforms houses into homes, combining timeless design with uncompromising quality.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="mission-card">
+                <div class="mission-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h3 style="color: var(--gold);">Our Vision</h3>
+                <p style="color: var(--parchment);">To become Africa's most trusted furniture destination, known for excellence in design, quality, and customer service.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="mission-card">
+                <div class="mission-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3 style="color: var(--gold);">Our Values</h3>
+                <p style="color: var(--parchment);">Quality craftsmanship, customer-centric approach, sustainability, and innovation in everything we do.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Our Story -->
+    <div class="story-section">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2 style="font-family: 'Cormorant Garamond', serif; color: var(--gold);">How It All Began</h2>
+                <p style="color: var(--parchment); line-height: 1.8;">FurniHub was founded in 2018 with a simple vision: to bring high-quality, beautifully designed furniture to homes across Africa. What started as a small showroom has grown into a premier destination for home furnishings.</p>
+                <p style="color: var(--parchment); line-height: 1.8; margin-top: 1rem;">We believe that your home should tell your story. That's why we curate collections that blend modern aesthetics with timeless elegance, ensuring every piece you choose reflects your unique personality.</p>
+            </div>
+            <div class="col-md-6 text-center">
+                <i class="fas fa-couch" style="font-size: 8rem; color: var(--gold); opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Our Values -->
+    <div class="text-center mb-5">
+        <h2 style="font-family: 'Cormorant Garamond', serif; color: var(--ivory);">What Makes Us Different</h2>
+        <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+            <span class="value-badge"><i class="fas fa-check-circle me-1"></i> Premium Quality</span>
+            <span class="value-badge"><i class="fas fa-truck me-1"></i> Free Delivery</span>
+            <span class="value-badge"><i class="fas fa-shield-alt me-1"></i> 5-Year Warranty</span>
+            <span class="value-badge"><i class="fas fa-undo me-1"></i> Easy Returns</span>
+            <span class="value-badge"><i class="fas fa-headset me-1"></i> 24/7 Support</span>
+            <span class="value-badge"><i class="fas fa-leaf me-1"></i> Eco-Friendly</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gift Cards - FurniHub{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 style="font-family: 'Cormorant Garamond', serif; color: var(--ivory);">Gift Cards</h1>
+        <p style="color: var(--smoke);">The perfect gift for any occasion</p>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card" style="background: var(--mahogany); border: 1px solid rgba(212,168,83,0.12); border-radius: 20px; padding: 2rem;">
+                <h3 style="color: var(--gold);">Choose an Amount</h3>
+                <div class="row g-3 mt-3">
+                    <div class="col-4">
+                        <button class="btn-admin w-100" style="padding: 1rem;">$25</button>
+                    </div>
+                    <div class="col-4">
+                        <button class="btn-admin btn-admin-primary w-100" style="padding: 1rem;">$50</button>
+                    </div>
+                    <div class="col-4">
+                        <button class="btn-admin w-100" style="padding: 1rem;">$100</button>
+                    </div>
+                    <div class="col-4">
+                        <button class="btn-admin w-100" style="padding: 1rem;">$200</button>
+                    </div>
+                    <div class="col-4">
+                        <button class="btn-admin w-100" style="padding: 1rem;">$500</button>
+                    </div>
+                    <div class="col-4">
+                        <div class="input-group">
+                            <input type="number" class="form-control" placeholder="Custom" style="background: rgba(0,0,0,0.3); border-color: rgba(212,168,83,0.2); color: var(--ivory);">
+                            <span class="input-group-text" style="background: var(--gold); color: var(--espresso);">$</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-send mt-4">Add to Cart →</button>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card" style="background: var(--mahogany); border: 1px solid rgba(212,168,83,0.12); border-radius: 20px; padding: 2rem;">
+                <i class="fas fa-gift fa-3x" style="color: var(--gold); margin-bottom: 1rem;"></i>
+                <h4 style="color: var(--ivory);">How It Works</h4>
+                <ul style="color: var(--parchment); line-height: 2;">
+                    <li>✓ Digital gift card delivered instantly via email</li>
+                    <li>✓ No expiration date</li>
+                    <li>✓ Can be used online or in-store</li>
+                    <li>✓ Add a personalized message</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-send {
+        background: var(--gold);
+        border: none;
+        border-radius: 40px;
+        padding: 0.8rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--espresso);
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-send:hover {
+        background: var(--gold-light);
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}

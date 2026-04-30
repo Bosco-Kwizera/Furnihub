@@ -1,0 +1,62 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+{% load static %}
+
+{% block admin_title %}Manage Categories{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 style="font-family: 'Cormorant Garamond', serif; color: var(--ivory);">
+        <i class="fas fa-folder-tree me-2" style="color: var(--gold);"></i>Categories
+    </h2>
+    <a href="{% url 'admin_dashboard:add_category' %}" class="btn-admin btn-admin-primary">
+        <i class="fas fa-plus me-2"></i> Add Category
+    </a>
+</div>
+
+<div class="admin-table">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Parent</th>
+                <th>Slug</th>
+                <th>Products</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category in categories %}
+            <tr>
+                <td><strong>{{ category.name }}</strong></td>
+                <td>{{ category.parent.name|default:"—" }}</td>
+                <td><code>{{ category.slug }}</code></td>
+                <td>{{ category.products.count }}</td>
+                <td>
+                    {% if category.is_active %}
+                        <span class="badge-status badge-paid">Active</span>
+                    {% else %}
+                        <span class="badge-status badge-pending">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <a href="#" class="btn-admin" style="padding: 0.25rem 0.75rem;">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <button class="btn-admin" style="padding: 0.25rem 0.75rem; border-color: rgba(232,123,106,0.4); color: #e87b6a;" 
+                                onclick="if(confirm('Delete {{ category.name }}?')) location.href='#'">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center;">No categories yet. <a href="{% url 'admin_dashboard:add_category' %}">Create one</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

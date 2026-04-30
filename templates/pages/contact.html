@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Us - FurniHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-hero {
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url('https://images.pexels.com/photos/1643384/pexels-photo-1643384.jpeg');
+        background-size: cover;
+        background-position: center;
+        padding: 80px 0;
+        text-align: center;
+    }
+    
+    .contact-hero h1 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 3rem;
+        color: var(--ivory);
+    }
+    
+    .contact-info-card {
+        background: var(--mahogany);
+        border: 1px solid rgba(212,168,83,0.12);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .contact-info-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(212,168,83,0.25);
+    }
+    
+    .contact-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(212,168,83,0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+    }
+    
+    .contact-icon i {
+        font-size: 1.5rem;
+        color: var(--gold);
+    }
+    
+    .contact-form-card {
+        background: var(--mahogany);
+        border: 1px solid rgba(212,168,83,0.12);
+        border-radius: 24px;
+        padding: 2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .form-control, .form-select {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(212, 168, 83, 0.2);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.9rem;
+        color: var(--ivory);
+        width: 100%;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--gold);
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+    }
+    
+    .btn-send {
+        background: var(--gold);
+        border: none;
+        border-radius: 40px;
+        padding: 0.8rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--espresso);
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-send:hover {
+        background: var(--gold-light);
+        transform: translateY(-2px);
+    }
+    
+    .map-placeholder {
+        background: var(--walnut);
+        border-radius: 20px;
+        padding: 3rem;
+        text-align: center;
+        border: 1px solid rgba(212,168,83,0.12);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="contact-hero">
+    <div class="container">
+        <h1>Get In Touch</h1>
+        <p style="color: var(--parchment);">We'd love to hear from you</p>
+    </div>
+</section>
+
+<div class="container mt-5">
+    <!-- Contact Info Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="contact-info-card">
+                <div class="contact-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <h5 style="color: var(--gold);">Visit Us</h5>
+                <p style="color: var(--parchment);">123 Furniture Street<br>Design City, DC 10001</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="contact-info-card">
+                <div class="contact-icon">
+                    <i class="fas fa-phone-alt"></i>
+                </div>
+                <h5 style="color: var(--gold);">Call Us</h5>
+                <p style="color: var(--parchment);">+1 (234) 567-890<br>Mon-Fri, 9AM-6PM</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="contact-info-card">
+                <div class="contact-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h5 style="color: var(--gold);">Email Us</h5>
+                <p style="color: var(--parchment);">support@furnihub.com<br>sales@furnihub.com</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-5">
+        <!-- Contact Form -->
+        <div class="col-lg-7">
+            <div class="contact-form-card">
+                <h3 style="font-family: 'Cormorant Garamond', serif; color: var(--ivory); margin-bottom: 1.5rem;">Send us a Message</h3>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Your Name</label>
+                                <input type="text" class="form-control" name="name" required placeholder="John Doe">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-control" name="email" required placeholder="john@example.com">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Subject</label>
+                        <input type="text" class="form-control" name="subject" required placeholder="How can we help?">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Message</label>
+                        <textarea class="form-control" name="message" rows="5" required placeholder="Tell us more..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-send">
+                        <i class="fas fa-paper-plane me-2"></i> Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Map & Hours -->
+        <div class="col-lg-5">
+            <div class="map-placeholder">
+                <i class="fas fa-map" style="font-size: 4rem; color: var(--gold); opacity: 0.5; margin-bottom: 1rem;"></i>
+                <h5 style="color: var(--gold);">Showroom Hours</h5>
+                <p style="color: var(--parchment);">Monday - Friday: 9:00 AM - 6:00 PM<br>Saturday: 10:00 AM - 4:00 PM<br>Sunday: Closed</p>
+                <hr style="border-color: rgba(212,168,83,0.1);">
+                <p style="color: var(--parchment);"><i class="fas fa-clock me-2"></i> We reply within 24 hours</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

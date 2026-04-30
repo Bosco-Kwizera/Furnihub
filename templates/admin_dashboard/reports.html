@@ -1,0 +1,251 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+{% load static %}
+
+{% block admin_title %}Reports & Analytics{% endblock %}
+
+{% block admin_content %}
+<div class="reports-container">
+    <!-- Date Range Selector -->
+    <div class="admin-table" style="margin-bottom: 1.5rem;">
+        <div style="padding: 1rem 1.5rem; background: var(--walnut); border-bottom: 1px solid rgba(212,168,83,0.1);">
+            <h5 style="margin: 0; color: var(--gold);">
+                <i class="fas fa-calendar-alt me-2"></i> Date Range
+            </h5>
+        </div>
+        <div style="padding: 1.5rem;">
+            <form method="GET" action="" id="reportForm">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Quick Select</label>
+                        <select name="date_range" class="form-select" id="dateRangeSelect">
+                            <option value="today" {% if date_range == 'today' %}selected{% endif %}>Today</option>
+                            <option value="yesterday" {% if date_range == 'yesterday' %}selected{% endif %}>Yesterday</option>
+                            <option value="week" {% if date_range == 'week' %}selected{% endif %}>Last 7 Days</option>
+                            <option value="month" {% if date_range == 'month' %}selected{% endif %}>Last 30 Days</option>
+                            <option value="year" {% if date_range == 'year' %}selected{% endif %}>Last 365 Days</option>
+                            <option value="custom" {% if date_range == 'custom' %}selected{% endif %}>Custom Range</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3" id="customDateRange" style="display: {% if date_range == 'custom' %}block{% else %}none{% endif %};">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" name="start_date" class="form-control" value="{{ start_date|date:'Y-m-d' }}">
+                    </div>
+                    <div class="col-md-3" id="customDateRangeEnd" style="display: {% if date_range == 'custom' %}block{% else %}none{% endif %};">
+                        <label class="form-label">End Date</label>
+                        <input type="date" name="end_date" class="form-control" value="{{ end_date|date:'Y-m-d' }}">
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn-admin btn-admin-primary w-100">
+                            <i class="fas fa-chart-line me-2"></i> Generate Report
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Total Orders</span>
+                <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+            </div>
+            <div class="stat-value">{{ total_orders }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Total Revenue</span>
+                <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+            </div>
+            <div class="stat-value">${{ total_revenue|floatformat:2 }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Average Order Value</span>
+                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+            </div>
+            <div class="stat-value">${{ avg_order_value|floatformat:2 }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Date Range</span>
+                <div class="stat-icon"><i class="fas fa-calendar"></i></div>
+            </div>
+            <div class="stat-value" style="font-size: 1rem;">{{ start_date|date:"M d" }} - {{ end_date|date:"M d, Y" }}</div>
+        </div>
+    </div>
+    
+    <!-- Export Buttons -->
+    <div class="admin-table" style="margin-bottom: 1.5rem;">
+        <div style="padding: 1rem 1.5rem; background: var(--walnut); border-bottom: 1px solid rgba(212,168,83,0.1);">
+            <h5 style="margin: 0; color: var(--gold);">
+                <i class="fas fa-download me-2"></i> Export Data
+            </h5>
+        </div>
+        <div style="padding: 1.5rem;">
+            <div class="d-flex gap-3 flex-wrap">
+                <a href="{% url 'admin_dashboard:export_orders_csv' %}?start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}" class="btn-admin">
+                    <i class="fas fa-file-csv me-2"></i> Export Orders (CSV)
+                </a>
+                <a href="{% url 'admin_dashboard:export_orders_excel' %}?start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}" class="btn-admin">
+                    <i class="fas fa-file-excel me-2"></i> Export Orders (Excel)
+                </a>
+                <a href="{% url 'admin_dashboard:export_products_csv' %}" class="btn-admin">
+                    <i class="fas fa-file-csv me-2"></i> Export Products (CSV)
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Orders by Status -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="admin-table">
+                <div style="padding: 1rem 1.5rem; background: var(--walnut); border-bottom: 1px solid rgba(212,168,83,0.1);">
+                    <h5 style="margin: 0; color: var(--gold);">
+                        <i class="fas fa-chart-pie me-2"></i> Orders by Status
+                    </h5>
+                </div>
+                <div style="padding: 1rem;">
+                    {% for status_label, count in orders_by_status.items %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>{{ status_label }}</span>
+                        <span class="fw-bold">{{ count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="admin-table">
+                <div style="padding: 1rem 1.5rem; background: var(--walnut); border-bottom: 1px solid rgba(212,168,83,0.1);">
+                    <h5 style="margin: 0; color: var(--gold);">
+                        <i class="fas fa-chart-bar me-2"></i> Daily Breakdown
+                    </h5>
+                </div>
+                <div style="padding: 1rem; max-height: 400px; overflow-y: auto;">
+                    <table class="admin-table" style="margin: 0;">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Orders</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for day in daily_data %}
+                            <tr>
+                                <td>{{ day.date|date:"M d, Y" }}</td>
+                                <td>{{ day.orders }}</td>
+                                <td>${{ day.revenue|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Orders List -->
+    <div class="admin-table">
+        <div style="padding: 1rem 1.5rem; background: var(--walnut); border-bottom: 1px solid rgba(212,168,83,0.1);">
+            <h5 style="margin: 0; color: var(--gold);">
+                <i class="fas fa-list me-2"></i> Orders in Date Range
+            </h5>
+        </div>
+        <div style="overflow-x: auto;">
+            <table class="admin-table" style="margin: 0;">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td><strong>#{{ order.order_number }}</strong></td>
+                        <td>{{ order.user.username }}</td>
+                        <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
+                        <td style="color: var(--gold);">${{ order.total|floatformat:2 }}</td>
+                        <td>
+                            <span class="badge-status {% if order.status == 'delivered' %}badge-paid{% else %}badge-pending{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge-status {% if order.payment_status == 'paid' %}badge-paid{% else %}badge-pending{% endif %}">
+                                {{ order.payment_status|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'admin_dashboard:order_detail' order.id %}" class="btn-admin" style="padding: 0.25rem 0.75rem;">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center;">No orders found in this date range</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-label {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .form-control, .form-select {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(212, 168, 83, 0.2);
+        border-radius: 10px;
+        padding: 0.75rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.85rem;
+        color: var(--ivory);
+        width: 100%;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--gold);
+    }
+</style>
+
+<script>
+    // Show/hide custom date range inputs
+    const dateRangeSelect = document.getElementById('dateRangeSelect');
+    const customDateRange = document.getElementById('customDateRange');
+    const customDateRangeEnd = document.getElementById('customDateRangeEnd');
+    
+    dateRangeSelect.addEventListener('change', function() {
+        if (this.value === 'custom') {
+            customDateRange.style.display = 'block';
+            customDateRangeEnd.style.display = 'block';
+        } else {
+            customDateRange.style.display = 'none';
+            customDateRangeEnd.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Unsubscribe - FurniHub{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card" style="background: var(--mahogany); border: 1px solid rgba(212,168,83,0.12);">
+                <div class="card-body text-center p-5">
+                    <i class="fas fa-envelope-open-text fa-4x mb-3" style="color: var(--gold);"></i>
+                    <h3 style="color: var(--ivory);">You've Been Unsubscribed</h3>
+                    <p style="color: var(--parchment);">You will no longer receive emails from FurniHub.</p>
+                    <a href="{% url 'products:home' %}" class="btn-admin btn-admin-primary mt-3">Return to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

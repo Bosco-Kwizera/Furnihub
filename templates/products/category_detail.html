@@ -1,0 +1,640 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ current_category.name }} - FurniHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Category Detail Page - Dark Luxury Theme */
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 1.5rem;
+    }
+    
+    .breadcrumb-item a {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 400;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--smoke);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    
+    .breadcrumb-item a:hover {
+        color: var(--gold);
+    }
+    
+    .breadcrumb-item.active {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--gold);
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        color: var(--smoke);
+        content: "/";
+    }
+    
+    /* Sidebar Cards */
+    .sidebar-card {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    
+    .sidebar-card .card-header {
+        background: var(--walnut);
+        border-bottom: 1px solid rgba(212, 168, 83, 0.12);
+        padding: 1rem 1.25rem;
+    }
+    
+    .sidebar-card .card-header h5 {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin: 0;
+    }
+    
+    .sidebar-card .card-body {
+        padding: 1.25rem;
+    }
+    
+    /* Subcategories List */
+    .subcategory-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .subcategory-list li {
+        margin-bottom: 0.75rem;
+    }
+    
+    .subcategory-list li:last-child {
+        margin-bottom: 0;
+    }
+    
+    .subcategory-link {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 400;
+        color: var(--parchment);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-block;
+    }
+    
+    .subcategory-link:hover {
+        color: var(--gold);
+        transform: translateX(4px);
+    }
+    
+    .subcategory-link.active {
+        color: var(--gold);
+        font-weight: 500;
+    }
+    
+    .subcategory-count {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.65rem;
+        color: var(--smoke);
+        margin-left: 0.5rem;
+    }
+    
+    /* Filter Form */
+    .filter-label {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .filter-input {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(212, 168, 83, 0.2);
+        border-radius: 10px;
+        padding: 0.6rem 0.8rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.8rem;
+        color: var(--ivory);
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-input:focus {
+        outline: none;
+        border-color: var(--gold);
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    .filter-select {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(212, 168, 83, 0.2);
+        border-radius: 10px;
+        padding: 0.6rem 0.8rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.8rem;
+        color: var(--ivory);
+        width: 100%;
+        cursor: pointer;
+    }
+    
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--gold);
+    }
+    
+    .btn-apply {
+        background: var(--gold);
+        border: none;
+        border-radius: 30px;
+        padding: 0.6rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--espresso);
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-apply:hover {
+        background: var(--gold-light);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(212, 168, 83, 0.3);
+    }
+    
+    .btn-clear {
+        background: transparent;
+        border: 1px solid rgba(212, 168, 83, 0.3);
+        border-radius: 30px;
+        padding: 0.6rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        width: 100%;
+        margin-top: 0.75rem;
+        text-decoration: none;
+        text-align: center;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-clear:hover {
+        border-color: var(--gold);
+        color: var(--gold-light);
+        background: rgba(212, 168, 83, 0.05);
+    }
+    
+    /* Category Header */
+    .category-header {
+        margin-bottom: 1.5rem;
+    }
+    
+    .category-header h2 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        color: var(--ivory);
+        margin-bottom: 0.5rem;
+    }
+    
+    .category-header p {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.85rem;
+        color: var(--smoke);
+        line-height: 1.5;
+    }
+    
+    /* Product Card */
+    .product-card-modern {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 20px;
+        transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .product-card-modern:hover {
+        transform: translateY(-6px);
+        border-color: rgba(212, 168, 83, 0.25);
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .product-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        background: var(--espresso);
+    }
+    
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .product-card-modern:hover .product-image img {
+        transform: scale(1.05);
+    }
+    
+    .product-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.75);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .product-card-modern:hover .product-overlay {
+        opacity: 1;
+    }
+    
+    .discount-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: var(--gold);
+        color: var(--espresso);
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.25rem 0.7rem;
+        border-radius: 30px;
+        z-index: 2;
+    }
+    
+    .product-card-modern .card-body {
+        padding: 1rem;
+    }
+    
+    .product-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--ivory);
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+    
+    .product-price {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 0.5rem;
+    }
+    
+    .current-price {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--gold);
+    }
+    
+    .old-price {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        color: var(--smoke);
+        text-decoration: line-through;
+    }
+    
+    .product-category {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 400;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--smoke);
+    }
+    
+    .btn-view {
+        background: transparent;
+        border: 1px solid rgba(212, 168, 83, 0.3);
+        border-radius: 30px;
+        padding: 0.4rem 0.8rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-view:hover {
+        border-color: var(--gold);
+        color: var(--gold-light);
+        background: rgba(212, 168, 83, 0.05);
+    }
+    
+    .btn-add {
+        background: var(--gold);
+        border: none;
+        border-radius: 30px;
+        padding: 0.4rem 0.8rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--espresso);
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .btn-add:hover {
+        background: var(--gold-light);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 24px;
+        padding: 3rem;
+        text-align: center;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        color: var(--smoke);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .empty-state p {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.85rem;
+        color: var(--smoke);
+    }
+    
+    /* Pagination */
+    .pagination {
+        gap: 6px;
+        margin-top: 2rem;
+    }
+    
+    .pagination .page-link {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.2);
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 400;
+        color: var(--parchment);
+        transition: all 0.3s ease;
+    }
+    
+    .pagination .page-link:hover {
+        background: rgba(212, 168, 83, 0.1);
+        border-color: var(--gold);
+        color: var(--gold-light);
+    }
+    
+    .pagination .page-item.active .page-link {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: var(--espresso);
+        font-weight: 600;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .category-header h2 {
+            font-size: 1.5rem;
+        }
+        
+        .product-image {
+            height: 180px;
+        }
+        
+        .empty-state {
+            padding: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-2">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'products:home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'products:product_list' %}">Collections</a></li>
+            {% for crumb in breadcrumbs %}
+                {% if forloop.last %}
+                    <li class="breadcrumb-item active">{{ crumb.name }}</li>
+                {% else %}
+                    <li class="breadcrumb-item"><a href="{{ crumb.url }}">{{ crumb.name }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ol>
+    </nav>
+    
+    <div class="row g-4">
+        <!-- Sidebar -->
+        <div class="col-lg-3">
+            <!-- Subcategories -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <h5><i class="fas fa-folder-tree me-2"></i> Subcategories</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="subcategory-list">
+                        <li>
+                            <a href="{% url 'products:category_detail' current_category.slug %}" 
+                               class="subcategory-link {% if not request.GET.subcategory %}active{% endif %}">
+                                All {{ current_category.name }}
+                            </a>
+                        </li>
+                        {% for subcat in subcategories %}
+                            <li>
+                                <a href="{% url 'products:category_detail' subcat.slug %}" class="subcategory-link">
+                                    {{ subcat.name }}
+                                </a>
+                                <span class="subcategory-count">({{ subcat.get_products.count }})</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Filters -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <h5><i class="fas fa-sliders-h me-2"></i> Refine</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET">
+                        <div class="mb-3">
+                            <label class="filter-label">Price Range</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="number" name="min_price" class="filter-input" placeholder="Min" value="{{ current_min_price }}">
+                                </div>
+                                <div class="col">
+                                    <input type="number" name="max_price" class="filter-input" placeholder="Max" value="{{ current_max_price }}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="filter-label">Sort By</label>
+                            <select name="sort" class="filter-select">
+                                <option value="">Default</option>
+                                <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                                <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                                <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn-apply">
+                            <i class="fas fa-filter me-2"></i> Apply Filters
+                        </button>
+                        <a href="{% url 'products:category_detail' current_category.slug %}" class="btn-clear">
+                            <i class="fas fa-undo-alt me-2"></i> Clear Filters
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Products Grid -->
+        <div class="col-lg-9">
+            <!-- Category Header -->
+            <div class="category-header">
+                <h2>{{ current_category.name }}</h2>
+                {% if current_category.description %}
+                    <p>{{ current_category.description }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Products Grid -->
+            <div class="row g-4">
+                {% for product in products %}
+                    <div class="col-md-6 col-xl-4">
+                        <div class="product-card-modern">
+                            <div class="product-image">
+                                {% if product.images.all %}
+                                    <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                                {% else %}
+                                    <div class="d-flex align-items-center justify-content-center h-100">
+                                        <i class="fas fa-couch fa-3x" style="color: var(--smoke); opacity: 0.4;"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="product-overlay">
+                                    <div class="text-center">
+                                        <a href="{% url 'products:product_detail' product.category.slug product.slug %}" class="btn-view d-inline-block mb-2">
+                                            <i class="fas fa-eye me-1"></i> View
+                                        </a>
+                                        <form action="{% url 'cart:add_to_cart' product.id %}" method="POST">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="quantity" value="1">
+                                            <button type="submit" class="btn-add">
+                                                <i class="fas fa-shopping-bag me-1"></i> Add
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                {% if product.get_discount_percentage > 0 %}
+                                    <span class="discount-badge">-{{ product.get_discount_percentage }}%</span>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <h6 class="product-title">{{ product.name|truncatechars:50 }}</h6>
+                                <div class="product-price">
+                                    <span class="current-price">${{ product.price }}</span>
+                                    {% if product.compare_price %}
+                                        <span class="old-price">${{ product.compare_price }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="product-category">{{ product.category.name }}</div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <i class="fas fa-box-open"></i>
+                            <p>No products found in this collection.</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.paginator.num_pages > 1 %}
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    <i class="fas fa-chevron-left"></i> Prev
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="fas fa-chevron-left"></i> Prev</span>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">Next <i class="fas fa-chevron-right"></i></span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

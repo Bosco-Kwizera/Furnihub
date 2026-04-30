@@ -1,0 +1,502 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} - FurniHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Category Page - Dark Luxury Theme */
+    .category-header {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 24px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .category-header h1 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.2rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        color: var(--ivory);
+        margin-bottom: 0.75rem;
+    }
+    
+    .category-header p {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.9rem;
+        color: var(--parchment);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+    
+    .product-count {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.75rem;
+        color: var(--gold);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+    
+    .product-count i {
+        margin-right: 0.5rem;
+    }
+    
+    /* Sort Bar */
+    .sort-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(212, 168, 83, 0.1);
+    }
+    
+    .results-text {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.8rem;
+        color: var(--smoke);
+    }
+    
+    .sort-select {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(212, 168, 83, 0.2);
+        border-radius: 30px;
+        padding: 0.5rem 1rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.75rem;
+        color: var(--parchment);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .sort-select:focus {
+        outline: none;
+        border-color: var(--gold);
+    }
+    
+    /* Product Card */
+    .product-card {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 20px;
+        transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(212, 168, 83, 0.25);
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .product-image-container {
+        position: relative;
+        height: 220px;
+        overflow: hidden;
+        background: var(--espresso);
+    }
+    
+    .product-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .product-card:hover .product-image-container img {
+        transform: scale(1.05);
+    }
+    
+    .discount-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: var(--gold);
+        color: var(--espresso);
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        padding: 0.25rem 0.7rem;
+        border-radius: 30px;
+        z-index: 2;
+    }
+    
+    .product-card .card-body {
+        padding: 1rem 1rem 0.5rem;
+    }
+    
+    .product-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--ivory);
+        margin-bottom: 0.25rem;
+        line-height: 1.4;
+    }
+    
+    .product-category {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 400;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--smoke);
+        margin-bottom: 0.75rem;
+    }
+    
+    .price-rating {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.5rem;
+    }
+    
+    .product-price {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    
+    .current-price {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--gold);
+    }
+    
+    .old-price {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        color: var(--smoke);
+        text-decoration: line-through;
+    }
+    
+    .rating-stars {
+        color: var(--gold);
+        font-size: 0.7rem;
+        white-space: nowrap;
+    }
+    
+    .product-card .card-footer {
+        background: transparent;
+        border-top: 1px solid rgba(212, 168, 83, 0.08);
+        padding: 0.75rem 1rem 1rem;
+    }
+    
+    .btn-view {
+        background: transparent;
+        border: 1px solid rgba(212, 168, 83, 0.3);
+        border-radius: 30px;
+        padding: 0.5rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        text-decoration: none;
+        text-align: center;
+        display: block;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-view:hover {
+        border-color: var(--gold);
+        color: var(--gold-light);
+        background: rgba(212, 168, 83, 0.05);
+    }
+    
+    .btn-cart {
+        background: var(--gold);
+        border: none;
+        border-radius: 30px;
+        padding: 0.5rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--espresso);
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .btn-cart:hover {
+        background: var(--gold-light);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(212, 168, 83, 0.3);
+    }
+    
+    .btn-cart:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.12);
+        border-radius: 24px;
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--smoke);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .empty-state h4 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.3rem;
+        font-weight: 500;
+        color: var(--ivory);
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+        font-family: 'Jost', sans-serif;
+        font-size: 0.85rem;
+        color: var(--smoke);
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-browse {
+        background: var(--gold);
+        border: none;
+        border-radius: 40px;
+        padding: 0.7rem 1.5rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--espresso);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-browse:hover {
+        background: var(--gold-light);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(212, 168, 83, 0.3);
+    }
+    
+    /* Pagination */
+    .pagination {
+        gap: 6px;
+        margin-top: 2rem;
+    }
+    
+    .pagination .page-link {
+        background: var(--mahogany);
+        border: 1px solid rgba(212, 168, 83, 0.2);
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        font-family: 'Jost', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 400;
+        color: var(--parchment);
+        transition: all 0.3s ease;
+    }
+    
+    .pagination .page-link:hover {
+        background: rgba(212, 168, 83, 0.1);
+        border-color: var(--gold);
+        color: var(--gold-light);
+    }
+    
+    .pagination .page-item.active .page-link {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: var(--espresso);
+        font-weight: 600;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .category-header {
+            padding: 1.25rem;
+        }
+        
+        .category-header h1 {
+            font-size: 1.6rem;
+        }
+        
+        .sort-bar {
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+        
+        .product-image-container {
+            height: 180px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-2">
+    <!-- Category Header -->
+    <div class="category-header">
+        <h1>{{ category.name }}</h1>
+        {% if category.description %}
+            <p>{{ category.description }}</p>
+        {% endif %}
+        <div class="product-count">
+            <i class="fas fa-couch"></i> {{ total_products }} piece{{ total_products|pluralize }} available
+        </div>
+    </div>
+    
+    <!-- Sort Bar -->
+    <div class="sort-bar">
+        <div class="results-text">
+            Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ total_products }} products
+        </div>
+        <div>
+            <form method="GET" class="d-inline">
+                <select name="sort" class="sort-select" onchange="this.form.submit()">
+                    <option value="">Sort by: Default</option>
+                    <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                </select>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Products Grid -->
+    <div class="row g-4">
+        {% for product in products %}
+            <div class="col-md-6 col-lg-4 col-xl-3">
+                <div class="product-card">
+                    <!-- Product Image -->
+                    <div class="product-image-container">
+                        {% if product.images.all %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <i class="fas fa-couch fa-3x" style="color: var(--smoke); opacity: 0.4;"></i>
+                            </div>
+                        {% endif %}
+                        
+                        {% if product.get_discount_percentage > 0 %}
+                            <span class="discount-badge">-{{ product.get_discount_percentage }}%</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-body">
+                        <h6 class="product-title">{{ product.name|truncatechars:50 }}</h6>
+                        <div class="product-category">{{ product.category.name }}</div>
+                        
+                        <div class="price-rating">
+                            <div class="product-price">
+                                <span class="current-price">${{ product.price }}</span>
+                                {% if product.compare_price %}
+                                    <span class="old-price">${{ product.compare_price }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="rating-stars">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= product.avg_rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% elif forloop.counter <= product.avg_rating|add:"0.5" %}
+                                        <i class="fas fa-star-half-alt"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'products:product_detail' product.category.slug product.slug %}" class="btn-view">
+                                <i class="fas fa-eye me-1"></i> View Details
+                            </a>
+                            {% if product.stock_quantity > 0 %}
+                                <form action="{% url 'cart:add_to_cart' product.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn-cart">
+                                        <i class="fas fa-shopping-bag me-1"></i> Add to Cart
+                                    </button>
+                                </form>
+                            {% else %}
+                                <button class="btn-cart" disabled>
+                                    <i class="fas fa-times me-1"></i> Out of Stock
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <h4>No products found</h4>
+                    <p>Check back soon for new arrivals in this collection!</p>
+                    <a href="{% url 'products:product_list' %}" class="btn-browse">
+                        <i class="fas fa-shopping-bag me-2"></i> Browse All Products
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}">
+                            <i class="fas fa-chevron-left"></i> Prev
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link"><i class="fas fa-chevron-left"></i> Prev</span>
+                    </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if current_sort %}&sort={{ current_sort }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next <i class="fas fa-chevron-right"></i></span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}

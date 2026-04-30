@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Design Blog - FurniHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .blog-hero {
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url('https://images.pexels.com/photos/2635038/pexels-photo-2635038.jpeg');
+        background-size: cover;
+        background-position: center;
+        padding: 80px 0;
+        text-align: center;
+    }
+    
+    .blog-card {
+        background: var(--mahogany);
+        border: 1px solid rgba(212,168,83,0.12);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .blog-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(212,168,83,0.25);
+    }
+    
+    .blog-image {
+        height: 200px;
+        background: var(--espresso);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .blog-image i {
+        font-size: 3rem;
+        color: var(--smoke);
+        opacity: 0.4;
+    }
+    
+    .blog-category {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: var(--gold);
+        color: var(--espresso);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .btn-read {
+        background: transparent;
+        border: 1px solid rgba(212,168,83,0.3);
+        border-radius: 30px;
+        padding: 0.5rem 1rem;
+        font-size: 0.7rem;
+        font-weight: 500;
+        color: var(--parchment);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-read:hover {
+        border-color: var(--gold);
+        color: var(--gold-light);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="blog-hero">
+    <div class="container">
+        <h1 class="display-4" style="color: var(--ivory);">Design Blog</h1>
+        <p style="color: var(--parchment);">Inspiration, tips, and trends for your home</p>
+    </div>
+</section>
+
+<div class="container mt-5">
+    <div class="row g-4">
+        <!-- Blog Post 1 -->
+        <div class="col-md-4">
+            <div class="blog-card">
+                <div class="blog-image position-relative">
+                    <i class="fas fa-couch"></i>
+                    <span class="blog-category">Living Room</span>
+                </div>
+                <div class="p-4">
+                    <h5 style="color: var(--gold);">5 Ways to Style Your Living Room</h5>
+                    <p style="color: var(--smoke); font-size: 0.85rem;">March 15, 2024 · 5 min read</p>
+                    <p style="color: var(--parchment);">Discover expert tips to transform your living space into a cozy, stylish haven...</p>
+                    <a href="#" class="btn-read mt-3">Read More →</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Blog Post 2 -->
+        <div class="col-md-4">
+            <div class="blog-card">
+                <div class="blog-image position-relative">
+                    <i class="fas fa-bed"></i>
+                    <span class="blog-category">Bedroom</span>
+                </div>
+                <div class="p-4">
+                    <h5 style="color: var(--gold);">Creating Your Dream Bedroom</h5>
+                    <p style="color: var(--smoke); font-size: 0.85rem;">March 10, 2024 · 4 min read</p>
+                    <p style="color: var(--parchment);">From color schemes to furniture placement, create your perfect sanctuary...</p>
+                    <a href="#" class="btn-read mt-3">Read More →</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Blog Post 3 -->
+        <div class="col-md-4">
+            <div class="blog-card">
+                <div class="blog-image position-relative">
+                    <i class="fas fa-tree"></i>
+                    <span class="blog-category">Outdoor</span>
+                </div>
+                <div class="p-4">
+                    <h5 style="color: var(--gold);">Transform Your Outdoor Space</h5>
+                    <p style="color: var(--smoke); font-size: 0.85rem;">March 5, 2024 · 6 min read</p>
+                    <p style="color: var(--parchment);">Create an outdoor oasis with our patio design guide and furniture tips...</p>
+                    <a href="#" class="btn-read mt-3">Read More →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

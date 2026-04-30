@@ -57,3 +57,5 @@ class CartItem(models.Model):
         price = self.product.price
         quantity = Decimal(str(self.quantity))
         return price * quantity
+    
+    

@@ -1,7 +1,9 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
+from django.contrib.auth.models import User
 import uuid
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -49,6 +51,7 @@ class Category(models.Model):
             return Product.objects.filter(category_id__in=list(child_ids) + [self.id], is_active=True)
         return Product.objects.filter(category=self, is_active=True)
 
+
 class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     name = models.CharField(max_length=200)
@@ -69,6 +72,9 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ['-created_at']
+
     def __str__(self):
         return self.name
 
@@ -76,9 +82,32 @@ class Product(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         if not self.sku:
-            import uuid
             self.sku = f"SKU-{uuid.uuid4().hex[:8].upper()}"
         super().save(*args, **kwargs)
+    
+    def get_absolute_url(self):
+        return reverse('products:product_detail', args=[self.category.slug, self.slug])
+    
+    def get_discount_percentage(self):
+        """Calculate discount percentage if compare_price exists"""
+        if self.compare_price and self.compare_price > self.price:
+            discount = ((self.compare_price - self.price) / self.compare_price) * 100
+            return round(discount)
+        return 0
+    
+    def is_in_stock(self):
+        """Check if product is in stock"""
+        return self.stock_quantity > 0
+    
+    def get_average_rating(self):
+        """Calculate average rating from approved reviews"""
+        avg = self.reviews.filter(is_approved=True).aggregate(models.Avg('rating'))['rating__avg']
+        return round(avg, 1) if avg else 0
+    
+    def get_review_count(self):
+        """Get count of approved reviews"""
+        return self.reviews.filter(is_approved=True).count()
+
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
@@ -95,9 +124,17 @@ class ProductImage(models.Model):
 
 
 class ProductReview(models.Model):
+    RATING_CHOICES = [
+        (1, '1 Star - Poor'),
+        (2, '2 Stars - Fair'),
+        (3, '3 Stars - Good'),
+        (4, '4 Stars - Very Good'),
+        (5, '5 Stars - Excellent'),
+    ]
+    
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    rating = models.PositiveIntegerField(choices=[(i, i) for i in range(1, 6)])
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField(choices=RATING_CHOICES)
     title = models.CharField(max_length=255, blank=True)
     comment = models.TextField(blank=True)
     is_approved = models.BooleanField(default=False)
@@ -110,16 +147,3 @@ class ProductReview(models.Model):
 
     def __str__(self):
         return f"Review for {self.product.name} by {self.user.username}"
-
-class ProductImage(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='products/')  # This saves to media/products/
-    alt_text = models.CharField(max_length=255, blank=True)
-    is_primary = models.BooleanField(default=False)
-    order = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        ordering = ['order']
-
-    def __str__(self):
-        return f"Image for {self.product.name}"

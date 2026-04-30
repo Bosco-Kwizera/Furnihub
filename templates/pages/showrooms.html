@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Showrooms - FurniHub{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 style="font-family: 'Cormorant Garamond', serif; color: var(--ivory);">Our Showrooms</h1>
+        <p style="color: var(--smoke);">Visit us to experience our furniture in person</p>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Showroom 1 -->
+        <div class="col-md-6">
+            <div class="card" style="background: var(--mahogany); border: 1px solid rgba(212,168,83,0.12); border-radius: 20px; overflow: hidden;">
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <i class="fas fa-building fa-2x" style="color: var(--gold);"></i>
+                    </div>
+                    <h3 style="color: var(--gold);">Downtown Design District</h3>
+                    <p style="color: var(--parchment);">123 Furniture Street<br>Design City, DC 10001</p>
+                    <p style="color: var(--parchment);"><i class="fas fa-phone me-2"></i> +1 (234) 567-890</p>
+                    <p style="color: var(--parchment);"><i class="fas fa-clock me-2"></i> Mon-Sat: 10AM - 7PM, Sun: 12PM - 5PM</p>
+                    <a href="#" class="btn-admin mt-3">Get Directions →</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Showroom 2 -->
+        <div class="col-md-6">
+            <div class="card" style="background: var(--mahogany); border: 1px solid rgba(212,168,83,0.12); border-radius: 20px; overflow: hidden;">
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <i class="fas fa-store fa-2x" style="color: var(--gold);"></i>
+                    </div>
+                    <h3 style="color: var(--gold);">Uptown Collection</h3>
+                    <p style="color: var(--parchment);">456 Luxury Avenue<br>Design City, DC 10002</p>
+                    <p style="color: var(--parchment);"><i class="fas fa-phone me-2"></i> +1 (234) 567-891</p>
+                    <p style="color: var(--parchment);"><i class="fas fa-clock me-2"></i> Mon-Sat: 10AM - 7PM, Sun: Closed</p>
+                    <a href="#" class="btn-admin mt-3">Get Directions →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Coming Soon -->
+    <div class="text-center mt-5 p-5" style="background: var(--walnut); border-radius: 20px;">
+        <i class="fas fa-map-marker-alt fa-3x" style="color: var(--gold); opacity: 0.5; margin-bottom: 1rem;"></i>
+        <h4 style="color: var(--ivory);">More Locations Coming Soon</h4>
+        <p style="color: var(--smoke);">We're expanding to serve you better</p>
+    </div>
+</div>
+{% endblock %}

@@ -47,53 +47,6 @@ class HomeView(ListView):
         ).order_by('-created_at')[:4]
         
         return context
-    
-class CategoryDetailView(ListView):
-    """Simple category detail view - shows all products in a category"""
-    model = Product
-    template_name = 'products/category_products.html'
-    context_object_name = 'products'
-    paginate_by = 12
-    
-    def get_queryset(self):
-        # Get the category from URL
-        category_slug = self.kwargs.get('category_slug')
-        self.current_category = get_object_or_404(Category, slug=category_slug, is_active=True)
-        
-        # Get all products in this category
-        # This includes products from this category and all its subcategories
-        category_ids = [self.current_category.id]
-        
-        # Add all child category IDs
-        for child in self.current_category.children.all():
-            category_ids.append(child.id)
-            # Add grandchild categories if any
-            for grandchild in child.children.all():
-                category_ids.append(grandchild.id)
-        
-        # Get products
-        products = Product.objects.filter(
-            category_id__in=category_ids,
-            is_active=True
-        )
-        
-        # Apply sorting if needed
-        sort_by = self.request.GET.get('sort')
-        if sort_by == 'price_low':
-            products = products.order_by('price')
-        elif sort_by == 'price_high':
-            products = products.order_by('-price')
-        elif sort_by == 'newest':
-            products = products.order_by('-created_at')
-        
-        return products
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['category'] = self.current_category
-        context['total_products'] = self.get_queryset().count()
-        context['current_sort'] = self.request.GET.get('sort', '')
-        return context    
 
 
 class ProductListView(ListView):
@@ -469,16 +422,29 @@ def add_review(request, product_id):
                            category_slug=product.category.slug, 
                            product_slug=product.slug)
         
+        # Get rating from POST data
+        rating = request.POST.get('rating')
+        title = request.POST.get('title')
+        comment = request.POST.get('comment')
+        
+        # Validate rating
+        if not rating or int(rating) not in range(1, 6):
+            messages.error(request, 'Please provide a valid rating.')
+            return redirect('products:product_detail', 
+                           category_slug=product.category.slug, 
+                           product_slug=product.slug)
+        
         # Create the review
         review = ProductReview.objects.create(
             product=product,
             user=request.user,
-            rating=request.POST.get('rating'),
-            title=request.POST.get('title'),
-            comment=request.POST.get('comment')
+            rating=rating,
+            title=title,
+            comment=comment,
+            is_approved=False  # Requires admin approval
         )
         
-        messages.success(request, 'Your review has been submitted and is pending approval.')
+        messages.success(request, 'Thank you for your review! It will be published after admin approval.')
         return redirect('products:product_detail', 
                        category_slug=product.category.slug, 
                        product_slug=product.slug)
@@ -492,8 +458,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     """API view for products"""
     queryset = Product.objects.filter(is_active=True)
     serializer_class = ProductSerializer
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]  # Removed DjangoFilterBackend temporarily
-    # filterset_class = ProductFilter  # Commented out
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'description', 'brand', 'sku']
     ordering_fields = ['price', 'created_at', 'name', 'stock_quantity']
     ordering = ['-created_at']
